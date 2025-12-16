@@ -11,6 +11,10 @@ RUN pip install fastapi uvicorn docker
 # Copy service code
 COPY main.py .
 
+# Configure git
+RUN git config --global user.email "git-service@nlp-lab.local" && \
+    git config --global user.name "Git Service"
+
 # Expose port
 EXPOSE 8001
 

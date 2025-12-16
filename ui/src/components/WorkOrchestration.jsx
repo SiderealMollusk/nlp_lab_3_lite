@@ -13,6 +13,11 @@ export default function WorkOrchestration() {
     const [fileInputs, setFileInputs] = useState({});
     const [collectLabel, setCollectLabel] = useState('');
     const [gitStatus, setGitStatus] = useState({ is_clean: true, uncommitted_files: [] });
+    const [projects, setProjects] = useState({ current_project: 'default', projects: [] });
+    const [showCreateProject, setShowCreateProject] = useState(false);
+    const [newProjectName, setNewProjectName] = useState('');
+    const [newProjectDesc, setNewProjectDesc] = useState('');
+    const [switching, setSwitching] = useState(false);
     const [message, setMessage] = useState('');
     const [flashPlan, setFlashPlan] = useState(false);
     const [flashQueue, setFlashQueue] = useState(false);
@@ -47,6 +52,20 @@ export default function WorkOrchestration() {
             }
         };
         fetchFiles();
+    }, []);
+
+    // Fetch projects
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch('http://localhost:8001/projects');
+                const data = await response.json();
+                setProjects(data);
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        };
+        fetchProjects();
     }, []);
 
     useEffect(() => {
@@ -157,6 +176,67 @@ export default function WorkOrchestration() {
         }
     };
 
+    const createProject = async () => {
+        if (!newProjectName) {
+            setMessage('Project name required');
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `http://localhost:8001/projects/create?name=${encodeURIComponent(newProjectName)}&description=${encodeURIComponent(newProjectDesc)}`,
+                { method: 'POST' }
+            );
+            const data = await response.json();
+
+            if (data.status === 'created') {
+                setMessage(`Created project: ${newProjectName}`);
+                setShowCreateProject(false);
+                setNewProjectName('');
+                setNewProjectDesc('');
+
+                // Refresh projects list
+                const projResponse = await fetch('http://localhost:8001/projects');
+                const projData = await projResponse.json();
+                setProjects(projData);
+            } else {
+                setMessage(data.detail || 'Failed to create project');
+            }
+        } catch (error) {
+            setMessage(`Error: ${error.message}`);
+        }
+    };
+
+    const switchProject = async (projectName) => {
+        if (projectName === projects.current_project) return;
+
+        setSwitching(true);
+        setMessage(`Switching to ${projectName}...`);
+
+        try {
+            const response = await fetch(
+                `http://localhost:8001/projects/switch?project=${encodeURIComponent(projectName)}`,
+                { method: 'POST' }
+            );
+            const data = await response.json();
+
+            if (data.status === 'switched' || data.status === 'already_active') {
+                setMessage(`Switched to project: ${projectName}`);
+
+                // Refresh projects list
+                const projResponse = await fetch('http://localhost:8001/projects');
+                const projData = await projResponse.json();
+                setProjects(projData);
+            } else {
+                setMessage(data.detail || 'Failed to switch project');
+            }
+        } catch (error) {
+            setMessage(`Error: ${error.message}`);
+        } finally {
+            setSwitching(false);
+        }
+    };
+
     const callEndpoint = async (endpoint, flashSetter) => {
         try {
             const response = await fetch(`http://localhost:8000/${endpoint}`, {
@@ -188,7 +268,78 @@ export default function WorkOrchestration() {
                 border: '2px solid ' + (gitStatus.is_clean ? '#28a745' : '#ffc107'),
                 background: gitStatus.is_clean ? '#d4edda' : '#fff3cd'
             }}>
-                <h2>0. Git Status</h2>
+                <h2>0. Git Status & Project</h2>
+
+                {/* Project Selector */}
+                <div style={{ marginBottom: '15px', padding: '10px', background: '#fff', border: '1px solid #ddd' }}>
+                    <div style={{ marginBottom: '10px' }}>
+                        <label style={{ fontWeight: 'bold' }}>Current Project: </label>
+                        <select
+                            value={projects.current_project}
+                            onChange={(e) => switchProject(e.target.value)}
+                            disabled={switching}
+                            style={{ marginLeft: '10px', padding: '5px' }}
+                        >
+                            {projects.projects.map(p => (
+                                <option key={p.name} value={p.name}>
+                                    {p.name} {p.description ? `- ${p.description}` : ''}
+                                </option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={() => setShowCreateProject(true)}
+                            style={{ marginLeft: '10px', padding: '5px 10px' }}
+                            disabled={switching}
+                        >
+                            + New Project
+                        </button>
+                    </div>
+                    {switching && <p style={{ color: '#856404', fontSize: '0.9em' }}>⏳ Switching projects...</p>}
+                </div>
+
+                {/* Create Project Modal */}
+                {showCreateProject && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}>
+                        <div style={{ background: 'white', padding: '20px', borderRadius: '8px', minWidth: '400px' }}>
+                            <h3>Create New Project</h3>
+                            <div style={{ marginBottom: '10px' }}>
+                                <label>Name: </label>
+                                <input
+                                    type="text"
+                                    value={newProjectName}
+                                    onChange={(e) => setNewProjectName(e.target.value)}
+                                    placeholder="project_name"
+                                    style={{ width: '100%', padding: '5px', marginTop: '5px' }}
+                                />
+                            </div>
+                            <div style={{ marginBottom: '15px' }}>
+                                <label>Description: </label>
+                                <input
+                                    type="text"
+                                    value={newProjectDesc}
+                                    onChange={(e) => setNewProjectDesc(e.target.value)}
+                                    placeholder="Optional description"
+                                    style={{ width: '100%', padding: '5px', marginTop: '5px' }}
+                                />
+                            </div>
+                            <button onClick={createProject} style={{ marginRight: '10px' }}>Create</button>
+                            <button onClick={() => setShowCreateProject(false)}>Cancel</button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Git Status */}
                 {gitStatus.is_clean ? (
                     <div>
                         <p style={{ color: '#155724', fontWeight: 'bold' }}>
@@ -197,6 +348,15 @@ export default function WorkOrchestration() {
                         <p style={{ fontSize: '0.9em', margin: '5px 0' }}>
                             Commit: {gitStatus.current_commit?.hash?.substring(0, 8)}
                         </p>
+                        {gitStatus.is_detached && (
+                            <div style={{ marginTop: '10px', padding: '8px', background: '#fff3cd', border: '1px solid #ffc107' }}>
+                                <strong>ℹ️ Detached HEAD</strong>
+                                <p style={{ margin: '5px 0', fontSize: '0.85em' }}>
+                                    You're viewing an old commit for reproducibility.
+                                    Results will be read-only (no collection).
+                                </p>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div>

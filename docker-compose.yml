@@ -1,4 +1,16 @@
 services:
+  git_service:
+    build:
+      context: ./git_service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/repo:ro # Read-only access to repo
+      - ./git_service:/app
+    environment:
+      - ENVIRONMENT=development
+
   ui:
     build:
       context: ./ui

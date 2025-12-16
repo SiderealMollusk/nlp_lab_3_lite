@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import logging
+import requests
 from job import Job
 import handlers
 from work_manager import WorkManager
@@ -33,6 +34,33 @@ task_counter = 0
 # ============================================================
 ACTIVE_HANDLER = "plan"  # Options: "plan" or "handler2"
 # ============================================================
+
+# Git service URL
+GIT_SERVICE_URL = os.getenv("GIT_SERVICE_URL", "http://git_service:8001")
+
+
+def check_git_clean():
+    """Check if git repo is clean. Raises HTTPException if dirty."""
+    try:
+        response = requests.get(f"{GIT_SERVICE_URL}/git/status", timeout=2)
+        response.raise_for_status()
+        status = response.json()
+        
+        if not status["is_clean"]:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Repository has uncommitted changes",
+                    "uncommitted_files": status["uncommitted_files"],
+                    "message": "Commit your changes before running work"
+                }
+            )
+        
+        return status["current_commit"]
+    except requests.RequestException as e:
+        logger.warning(f"Could not reach git service: {e}")
+        # Don't block if git service is down (development mode)
+        return None
 
 
 
@@ -143,12 +171,16 @@ def get_status():
 def make_plan_endpoint(request: MakePlanRequest):
     """
     Create a work plan using specified plan module.
+    Requires clean git repository.
     
     Args:
         request: MakePlanRequest with plan ID and inputs dict
     """
     import workflow
     import importlib
+    
+    # Check git is clean
+    commit_info = check_git_clean()
     
     try:
         # Load the plan module
@@ -166,7 +198,8 @@ def make_plan_endpoint(request: MakePlanRequest):
         work_manager.current_plan_metadata = {
             "plan_id": request.plan,
             "output_file": sig.get("output_file", "results"),
-            "output_dir": sig.get("output_dir", "analysis/default")
+            "output_dir": sig.get("output_dir", "analysis/default"),
+            "source_commit": commit_info  # Store commit info
         }
         
         # Create a wrapper that calls execute with the inputs
@@ -182,10 +215,13 @@ def make_plan_endpoint(request: MakePlanRequest):
 
 @app.post("/collect")
 def collect_results(label: str = ""):
-    """Collect results and write to file with auto-generated name."""
+    """Collect results and write to file. Requires clean repo."""
     import os
     import json
     from datetime import datetime
+    
+    # Check git is clean
+    check_git_clean()
     
     try:
         # Get results from work manager
@@ -249,9 +285,12 @@ def collect_results(label: str = ""):
 
 @app.post("/dispatch")
 def dispatch_endpoint():
-    """Dispatch planned jobs to work manager."""
+    """Dispatch planned jobs to work manager. Requires clean repo."""
     global task_counter
     import workflow
+    
+    # Check git is clean
+    check_git_clean()
     
     try:
         # Read manifest and create jobs

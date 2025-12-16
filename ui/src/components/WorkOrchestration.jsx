@@ -725,6 +725,18 @@ export default function WorkOrchestration() {
                             </div>
                             <div style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>Completed Jobs</div>
 
+                            {/* Results Link */}
+                            <div style={{ marginBottom: '20px', fontSize: '0.85em', color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <span>📂 results/</span>
+                                <a
+                                    href={`vscode://file${config.project_root}/data/analysis/${projects.current_project}`}
+                                    title="Open Results Folder"
+                                    style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '1.1em' }}
+                                >
+                                    📝
+                                </a>
+                            </div>
+
                             <div style={{ display: 'flex', gap: '10px', maxWidth: '500px', margin: '0 auto', alignItems: 'stretch' }}>
                                 <input
                                     type="text"

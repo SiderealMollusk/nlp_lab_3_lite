@@ -22,6 +22,8 @@ export default function WorkOrchestration() {
     const [flashPlan, setFlashPlan] = useState(false);
     const [flashQueue, setFlashQueue] = useState(false);
     const [flashComplete, setFlashComplete] = useState(false);
+    const [targetProject, setTargetProject] = useState(projects.current_project);
+    const [showProjectControls, setShowProjectControls] = useState(false);
 
     // Fetch available plans
     useEffect(() => {
@@ -175,8 +177,6 @@ export default function WorkOrchestration() {
         return () => clearInterval(interval);
     }, [showProjectControls]);
 
-    const [targetProject, setTargetProject] = useState(projects.current_project);
-    const [showProjectControls, setShowProjectControls] = useState(false);
 
     const forceCollect = async () => {
         if (!window.confirm('Force collect will mark results as DIRTY. Continue?')) {

@@ -271,6 +271,36 @@ export default function WorkOrchestration() {
         }
     };
 
+    const handleMakePlan = async () => {
+        if (!selectedPlan) return;
+
+        try {
+            const response = await fetch('http://localhost:8000/make-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    plan: selectedPlan,
+                    inputs: { corpus: 'corpus.jsonl' } // Hardcoded for now based on UI
+                })
+            });
+            const data = await response.json();
+            setFlashPlan(true);
+            setTimeout(() => setFlashPlan(false), 500);
+
+            if (data.status === 'success') {
+                setMessage(data.message);
+                // Refresh status to show planned jobs
+                const statusRes = await fetch('http://localhost:8000/status');
+                const statusData = await statusRes.json();
+                setStatus(statusData);
+            } else {
+                setMessage(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            setMessage(`Error making plan: ${error.message}`);
+        }
+    };
+
     // Calculate derived state
     const canMakePlan = selectedPlan && !gitStatus.uncommitted_files.length;
     const canDispatch = status.planned_jobs > 0 && !gitStatus.uncommitted_files.length;
@@ -483,7 +513,11 @@ export default function WorkOrchestration() {
                                     style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
                                 >
                                     <option value="">-- Choose Plan --</option>
-                                    {plans.map(p => <option key={p} value={p}>{p}</option>)}
+                                    {plans.map(p => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             {/* File Inputs logic implies we assume 'corpus' for now based on legacy code, 
@@ -500,7 +534,7 @@ export default function WorkOrchestration() {
                         {/* Actions */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', justifyContent: 'center' }}>
                             <button
-                                onClick={() => callEndpoint(`make-plan?plan_name=${selectedPlan}`, setFlashPlan)}
+                                onClick={handleMakePlan}
                                 disabled={!canMakePlan}
                                 style={{
                                     padding: '12px',

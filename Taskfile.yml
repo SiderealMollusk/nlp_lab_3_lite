@@ -1,0 +1,70 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "Default task: Bring up the full stack"
+    cmds:
+      - task: up
+
+  install:
+    desc: "Verify prerequisites and install dependencies"
+    cmds:
+      - cmd: echo "🔍 Checking environment prerequisites..."
+        silent: true
+      
+      # 1. Docker
+      - cmd: 'which docker > /dev/null || (echo "❌ Docker is missing. Please install Docker Desktop." && exit 1)'
+        silent: true
+      - cmd: 'docker info > /dev/null 2>&1 || (echo "❌ Docker daemon is not running. Please start Docker." && exit 1)'
+        silent: true
+      - cmd: echo "✅ Docker is ready"
+        silent: true
+
+      # 2. GitHub CLI (gh) (Quoted to avoid YAML colon issues)
+      - cmd: 'which gh > /dev/null || (echo "❌ GitHub CLI (gh) is missing. Please install it: brew install gh" && exit 1)'
+        silent: true
+      - cmd: 'gh auth status > /dev/null 2>&1 || (echo "❌ GitHub CLI not logged in. Run: gh auth login" && exit 1)'
+        silent: true
+      - cmd: echo "✅ GitHub CLI is ready"
+        silent: true
+
+      # 3. Git
+      - cmd: 'which git > /dev/null || (echo "❌ Git is missing." && exit 1)'
+        silent: true
+      - cmd: echo "✅ Git is ready"
+        silent: true
+
+      # 4. Task (Meta-check)
+      - cmd: echo "✅ Taskfile is running (obviously)"
+        silent: true
+        
+      - echo "🎉 Environment verified! You are ready to run 'task up'"
+
+  up:
+    desc: "Start all infrastructure (Future Robots: This must trigger ALL infra provisioning)"
+    summary: |
+      Start the development environment.
+      
+      NOTE FOR FUTURE ROBOTS/AGENTS:
+      This task is the canonical entry point for spinning up the ENTIRE
+      infrastructure stack. If you add database migrations, cloud tofu/terraform,
+      or other services, they MUST be orchestrated here.
+    cmds:
+      - docker compose up -d
+      - echo "🚀 System is UP. UI at http://localhost:5173"
+
+  down:
+    desc: "Tear down all infrastructure"
+    summary: |
+      Stop the development environment.
+      
+      NOTE FOR FUTURE ROBOTS/AGENTS:
+      This must completely dismantle the stack managed by 'task up'.
+    cmds:
+      - docker compose down
+      - echo "💤 System is DOWN."
+
+  logs:
+    desc: "Tail logs for all services"
+    cmds:
+      - docker compose logs -f

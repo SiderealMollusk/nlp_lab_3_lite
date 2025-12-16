@@ -175,7 +175,7 @@ import json
 import time
 from datetime import datetime
 
-PROJECTS_FILE = "/repo/data/projects.json"
+PROJECTS_FILE = "/repo/projects.json"  # In source repo, not data
 ALLOWED_CONTAINERS = [
     "nlp_lab_3_lite-work_api-1",
     "nlp_lab_3_lite-ui-1"
@@ -265,7 +265,7 @@ def create_project(name: str, description: str = ""):
         branch_name = f"project-{name}"
         run_git_command(["git", "-C", "/repo/data", "checkout", "-b", branch_name])
         
-        # Add project to registry
+        # Add project to registry (in source repo)
         project = {
             "name": name,
             "branch": branch_name,
@@ -275,10 +275,8 @@ def create_project(name: str, description: str = ""):
         }
         data['projects'].append(project)
         
-        # Save and commit
+        # Save projects.json (in source repo, not data)
         save_projects(data)
-        run_git_command(["git", "-C", "/repo/data", "add", "projects.json"])
-        run_git_command(["git", "-C", "/repo/data", "commit", "-m", f"Create project: {name}"])
         
         # Switch back to current project
         current_branch = next(p['branch'] for p in data['projects'] if p['name'] == data['current_project'])

@@ -11,6 +11,8 @@ export default function WorkOrchestration() {
     const [selectedPlan, setSelectedPlan] = useState('');
     const [files, setFiles] = useState({ corpus: [], analysis_dirs: [] });
     const [config, setConfig] = useState({ project_root: '' });
+    const [fileInputs, setFileInputs] = useState({});
+    const [collectLabel, setCollectLabel] = useState('');
 
     // Fetch config
     useEffect(() => {

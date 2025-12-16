@@ -13,6 +13,7 @@ export default function WorkOrchestration() {
     const [config, setConfig] = useState({ project_root: '' });
     const [fileInputs, setFileInputs] = useState({});
     const [collectLabel, setCollectLabel] = useState('');
+    const [lastResult, setLastResult] = useState(null);
 
     // Fetch config
     useEffect(() => {
@@ -147,6 +148,9 @@ export default function WorkOrchestration() {
 
             if (data.status === 'success') {
                 setCollectLabel(''); // Clear label after successful collect
+                if (data.filename && data.path) {
+                    setLastResult({ filename: data.filename, path: data.path });
+                }
             }
         } catch (error) {
             setMessage(`Error: ${error.message}`);

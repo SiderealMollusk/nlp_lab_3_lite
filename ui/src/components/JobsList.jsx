@@ -30,7 +30,7 @@ export default function JobsList() {
 
     return (
         <div>
-            <h2>Jobs</h2>
+            <h2>Jobs ({jobEntries.length})</h2>
             {error && <p>{error}</p>}
             {jobEntries.length === 0 ? (
                 <p>No jobs</p>
@@ -38,7 +38,7 @@ export default function JobsList() {
                 <ul>
                     {jobEntries.map(([id, job]) => (
                         <li key={id}>
-                            {id}: {JSON.stringify(job)}
+                            Task #{job.task_number}: {job.payload.handler} - {id.substring(0, 8)}...
                         </li>
                     ))}
                 </ul>

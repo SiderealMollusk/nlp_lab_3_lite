@@ -40,3 +40,12 @@
 .read-the-docs {
   color: #888;
 }
+
+@keyframes flash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: #90EE90; }
+}
+
+.flash {
+  animation: flash 1s ease-in-out;
+}

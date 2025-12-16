@@ -21,5 +21,6 @@ services:
       - "8000:8000"
     volumes:
       - ./work:/app
+      - ./data:/app/data
     environment:
       - ENVIRONMENT=development

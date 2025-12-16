@@ -14,6 +14,13 @@
       "description": "testing the project switching behavior",
       "created": "2025-12-16T22:42:03.675522Z",
       "commits": []
+    },
+    {
+      "name": "project_A",
+      "branch": "project-project_A",
+      "description": "testing",
+      "created": "2025-12-16T22:46:12.959136Z",
+      "commits": []
     }
   ]
 }

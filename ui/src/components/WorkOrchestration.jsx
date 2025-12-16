@@ -818,7 +818,12 @@ export default function WorkOrchestration() {
                         </div>
                     </div>
                 )}
-                {/* Closing divs for new layout */}
+            </div>
+
+            {/* Debug Footer */}
+            <div style={{ textAlign: 'center', marginTop: '30px', color: '#ccc', fontSize: '0.8em', fontFamily: 'monospace' }}>
+                PROJECT_ROOT: {config.project_root || "(Not Detected)"} <br />
+                API: http://localhost:8000
             </div>
         </div>
     );

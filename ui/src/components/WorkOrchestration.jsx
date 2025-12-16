@@ -319,440 +319,473 @@ export default function WorkOrchestration() {
     const readyToCollect = hasResultsInMemory && isSystemIdle;
 
     return (
-        <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: '1200px', margin: '0 auto', paddingBottom: '50px' }}>
+        <div style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '20px' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '50px' }}>
 
-            {/* --- NAVIGATION BAR --- */}
-            <nav style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '15px 20px',
-                background: '#ffffff',
-                borderBottom: '1px solid #e0e0e0',
-                marginBottom: '40px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-                borderRadius: '8px'
-            }}>
-                {/* Left: Branding & Git Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.2em', color: '#333' }}>NLP Lab</h2>
+                {/* --- NAVIGATION BAR --- */}
+                <nav style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '15px 20px',
+                    background: '#ffffff',
+                    borderBottom: '1px solid #e0e0e0',
+                    marginBottom: '40px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                    borderRadius: '8px'
+                }}>
+                    {/* Left: Branding & Git Badge */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.2em', color: '#333' }}>NLP Lab</h2>
 
-                    {/* Git Status Badge */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        fontSize: '0.85em',
-                        fontWeight: '600',
-                        background: gitStatus.is_clean ? '#e6f4ea' : '#fff8e1',
-                        color: gitStatus.is_clean ? '#137333' : '#b06000',
-                        border: `1px solid ${gitStatus.is_clean ? '#ceead6' : '#ffe082'}`
-                    }}>
-                        {gitStatus.is_clean ? (
-                            <>
-                                <span>✓ Clean</span>
-                                <span style={{ opacity: 0.7, fontWeight: 'normal' }}>({gitStatus.current_commit?.hash?.substring(0, 7)})</span>
-                            </>
-                        ) : (
-                            <details style={{ position: 'relative', cursor: 'pointer' }}>
-                                <summary style={{ listStyle: 'none' }}>
-                                    ⚠️ Dirty ({gitStatus.uncommitted_files.length}) ▾
-                                </summary>
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '120%',
-                                    left: 0,
-                                    background: 'white',
-                                    border: '1px solid #ccc',
-                                    padding: '10px',
-                                    borderRadius: '4px',
-                                    width: '300px',
-                                    zIndex: 100,
-                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                                }}>
-                                    <strong style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Uncommitted Changes:</strong>
-                                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9em', color: '#555' }}>
-                                        {gitStatus.uncommitted_files.map((f, i) => <li key={i}>{f}</li>)}
-                                    </ul>
-                                </div>
-                            </details>
+                        {/* Git Status Badge */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            fontSize: '0.85em',
+                            fontWeight: '600',
+                            background: gitStatus.is_clean ? '#e6f4ea' : '#fff8e1',
+                            color: gitStatus.is_clean ? '#137333' : '#b06000',
+                            border: `1px solid ${gitStatus.is_clean ? '#ceead6' : '#ffe082'}`
+                        }}>
+                            {gitStatus.is_clean ? (
+                                <>
+                                    <span>✓ Clean</span>
+                                    <span style={{ opacity: 0.7, fontWeight: 'normal' }}>({gitStatus.current_commit?.hash?.substring(0, 7)})</span>
+                                </>
+                            ) : (
+                                <details style={{ position: 'relative', cursor: 'pointer' }}>
+                                    <summary style={{ listStyle: 'none' }}>
+                                        ⚠️ Dirty ({gitStatus.uncommitted_files.length}) ▾
+                                    </summary>
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '120%',
+                                        left: 0,
+                                        background: 'white',
+                                        border: '1px solid #ccc',
+                                        padding: '10px',
+                                        borderRadius: '4px',
+                                        width: '300px',
+                                        zIndex: 100,
+                                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                                    }}>
+                                        <strong style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Uncommitted Changes:</strong>
+                                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9em', color: '#555' }}>
+                                            {gitStatus.uncommitted_files.map((f, i) => <li key={i}>{f}</li>)}
+                                        </ul>
+                                    </div>
+                                </details>
+                            )}
+                        </div>
+
+                        {gitStatus.is_detached && (
+                            <span style={{
+                                fontSize: '0.8em',
+                                background: '#e8f0fe',
+                                color: '#1967d2',
+                                padding: '4px 8px',
+                                borderRadius: '4px'
+                            }}>
+                                ℹ️ Detached Head
+                            </span>
                         )}
                     </div>
 
-                    {gitStatus.is_detached && (
-                        <span style={{
-                            fontSize: '0.8em',
-                            background: '#e8f0fe',
-                            color: '#1967d2',
-                            padding: '4px 8px',
-                            borderRadius: '4px'
-                        }}>
-                            ℹ️ Detached Head
-                        </span>
-                    )}
-                </div>
+                    {/* Right: Project Context */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ textAlign: 'right' }}>
+                            <span style={{ display: 'block', fontSize: '0.75em', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Project</span>
+                            <span style={{ fontWeight: 'bold', fontSize: '1.1em', color: '#1a1a1a' }}>{projects.current_project}</span>
+                        </div>
 
-                {/* Right: Project Context */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <div style={{ textAlign: 'right' }}>
-                        <span style={{ display: 'block', fontSize: '0.75em', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Project</span>
-                        <span style={{ fontWeight: 'bold', fontSize: '1.1em', color: '#1a1a1a' }}>{projects.current_project}</span>
-                    </div>
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() => setShowProjectControls(!showProjectControls)}
+                                style={{
+                                    background: showProjectControls ? '#f1f3f4' : 'transparent',
+                                    border: '1px solid #dadce0',
+                                    borderRadius: '50%',
+                                    width: '40px',
+                                    height: '40px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.2em',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                ⚙️
+                            </button>
 
-                    <div style={{ position: 'relative' }}>
-                        <button
-                            onClick={() => setShowProjectControls(!showProjectControls)}
-                            style={{
-                                background: showProjectControls ? '#f1f3f4' : 'transparent',
-                                border: '1px solid #dadce0',
-                                borderRadius: '50%',
-                                width: '40px',
-                                height: '40px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '1.2em',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            ⚙️
-                        </button>
+                            {/* Dropdown Menu */}
+                            {showProjectControls && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '120%',
+                                    right: 0,
+                                    width: '300px',
+                                    background: 'white',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '8px',
+                                    padding: '15px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                    zIndex: 1000
+                                }}>
+                                    <h4 style={{ marginTop: 0, marginBottom: '10px' }}>Switch Project</h4>
+                                    <div style={{ display: 'flex', gap: '5px', marginBottom: '15px' }}>
+                                        <select
+                                            value={targetProject}
+                                            onChange={(e) => setTargetProject(e.target.value)}
+                                            disabled={switching}
+                                            style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                        >
+                                            {projects.projects.map(p => (
+                                                <option key={p.name} value={p.name}>
+                                                    {p.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={switchProject}
+                                            disabled={switching || targetProject === projects.current_project}
+                                            style={{
+                                                background: '#1a73e8',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                padding: '0 12px',
+                                                cursor: 'pointer',
+                                                opacity: (switching || targetProject === projects.current_project) ? 0.5 : 1
+                                            }}
+                                        >
+                                            Switch
+                                        </button>
+                                    </div>
 
-                        {/* Dropdown Menu */}
-                        {showProjectControls && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '120%',
-                                right: 0,
-                                width: '300px',
-                                background: 'white',
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                padding: '15px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                zIndex: 1000
-                            }}>
-                                <h4 style={{ marginTop: 0, marginBottom: '10px' }}>Switch Project</h4>
-                                <div style={{ display: 'flex', gap: '5px', marginBottom: '15px' }}>
-                                    <select
-                                        value={targetProject}
-                                        onChange={(e) => setTargetProject(e.target.value)}
-                                        disabled={switching}
-                                        style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                    <div style={{ borderTop: '1px solid #eee', margin: '10px 0' }}></div>
+
+                                    <button
+                                        onClick={() => setShowCreateProject(true)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px',
+                                            background: 'transparent',
+                                            border: '1px dashed #ccc',
+                                            borderRadius: '4px',
+                                            color: '#666',
+                                            cursor: 'pointer'
+                                        }}
                                     >
-                                        {projects.projects.map(p => (
-                                            <option key={p.name} value={p.name}>
+                                        + Create New Project
+                                    </button>
+
+                                    {switching && <p style={{ color: '#b06000', fontSize: '0.85em', marginTop: '10px', textAlign: 'center' }}>⏳ Switching...</p>}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </nav>
+
+                {/* --- CORE MASONRY LAYOUT --- */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px' }}>
+
+                    {/* 1. PLANNING & DISPATCH */}
+                    <div style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: flashPlan ? '0 0 0 4px rgba(26,115,232,0.3)' : '0 1px 3px rgba(0,0,0,0.12)',
+                        transition: 'box-shadow 0.3s'
+                    }}>
+                        <h2 style={{
+                            margin: 0,
+                            padding: '15px 25px',
+                            background: '#1967d2',
+                            color: 'white',
+                            fontSize: '1.1em',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <span>1. Planning</span>
+                            <span style={{ fontSize: '0.7em', color: '#1967d2', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                                {status.planned_jobs} Jobs
+                            </span>
+                        </h2>
+
+                        <div style={{ padding: '25px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            {/* Inputs */}
+                            <div>
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Select Plan Strategy</label>
+                                    <select
+                                        value={selectedPlan}
+                                        onChange={(e) => setSelectedPlan(e.target.value)}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                                    >
+                                        <option value="">-- Choose Plan --</option>
+                                        {plans.map(p => (
+                                            <option key={p.id} value={p.id}>
                                                 {p.name}
                                             </option>
                                         ))}
                                     </select>
-                                    <button
-                                        onClick={switchProject}
-                                        disabled={switching || targetProject === projects.current_project}
-                                        style={{
-                                            background: '#1a73e8',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            padding: '0 12px',
-                                            cursor: 'pointer',
-                                            opacity: (switching || targetProject === projects.current_project) ? 0.5 : 1
-                                        }}
-                                    >
-                                        Switch
-                                    </button>
                                 </div>
+                                {/* File Inputs logic implies we assume 'corpus' for now based on legacy code, 
+                                but truly dynamic inputs would map `files` here. Keeping it simpl-ish for current state */}
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Corpus</label>
+                                    <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                                        <option>corpus.jsonl</option>
+                                        {/* Placeholder as per previous UI logic */}
+                                    </select>
+                                </div>
+                            </div>
 
-                                <div style={{ borderTop: '1px solid #eee', margin: '10px 0' }}></div>
-
+                            {/* Actions */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', justifyContent: 'center' }}>
                                 <button
-                                    onClick={() => setShowCreateProject(true)}
+                                    onClick={handleMakePlan}
+                                    disabled={!canMakePlan}
                                     style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        background: 'transparent',
-                                        border: '1px dashed #ccc',
-                                        borderRadius: '4px',
-                                        color: '#666',
-                                        cursor: 'pointer'
+                                        padding: '12px',
+                                        background: canMakePlan ? '#1a73e8' : '#e0e0e0',
+                                        color: canMakePlan ? 'white' : '#888',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        cursor: canMakePlan ? 'pointer' : 'not-allowed',
+                                        fontWeight: '600'
                                     }}
                                 >
-                                    + Create New Project
+                                    Make Plan
                                 </button>
 
-                                {switching && <p style={{ color: '#b06000', fontSize: '0.85em', marginTop: '10px', textAlign: 'center' }}>⏳ Switching...</p>}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </nav>
-
-            {/* --- CORE MASONRY LAYOUT --- */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px' }}>
-
-                {/* 1. PLANNING & DISPATCH */}
-                <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '25px',
-                    boxShadow: flashPlan ? '0 0 0 2px #1a73e8' : '0 2px 8px rgba(0,0,0,0.05)',
-                    transition: 'box-shadow 0.3s'
-                }}>
-                    <h2 style={{ marginTop: 0, borderBottom: '2px solid #f1f3f4', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                        1. Planning
-                        <span style={{ fontSize: '0.6em', color: '#666', background: '#f1f3f4', padding: '4px 8px', borderRadius: '12px' }}>
-                            {status.planned_jobs} Jobs
-                        </span>
-                    </h2>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
-                        {/* Inputs */}
-                        <div>
-                            <div style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Select Plan Strategy</label>
-                                <select
-                                    value={selectedPlan}
-                                    onChange={(e) => setSelectedPlan(e.target.value)}
-                                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                                <button
+                                    onClick={() => callEndpoint('dispatch', setFlashQueue)}
+                                    disabled={!canDispatch}
+                                    style={{
+                                        padding: '12px',
+                                        background: 'transparent',
+                                        border: `2px solid ${canDispatch ? '#137333' : '#e0e0e0'}`,
+                                        color: canDispatch ? '#137333' : '#aaa',
+                                        borderRadius: '6px',
+                                        cursor: canDispatch ? 'pointer' : 'not-allowed',
+                                        fontWeight: '600',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                                    }}
                                 >
-                                    <option value="">-- Choose Plan --</option>
-                                    {plans.map(p => (
-                                        <option key={p.id} value={p.id}>
-                                            {p.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                    🚀 Dispatch Plan
+                                </button>
+
+                                <button
+                                    onClick={() => callEndpoint('flush-plan', setFlashPlan)}
+                                    style={{
+                                        padding: '8px',
+                                        background: 'transparent',
+                                        color: '#d93025',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9em'
+                                    }}
+                                >
+                                    Clear Plan
+                                </button>
                             </div>
-                            {/* File Inputs logic implies we assume 'corpus' for now based on legacy code, 
-                                but truly dynamic inputs would map `files` here. Keeping it simpl-ish for current state */}
-                            <div style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Corpus</label>
-                                <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
-                                    <option>corpus.jsonl</option>
-                                    {/* Placeholder as per previous UI logic */}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', justifyContent: 'center' }}>
-                            <button
-                                onClick={handleMakePlan}
-                                disabled={!canMakePlan}
-                                style={{
-                                    padding: '12px',
-                                    background: canMakePlan ? '#1a73e8' : '#e0e0e0',
-                                    color: canMakePlan ? 'white' : '#888',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    cursor: canMakePlan ? 'pointer' : 'not-allowed',
-                                    fontWeight: '600'
-                                }}
-                            >
-                                Make Plan
-                            </button>
-
-                            <button
-                                onClick={() => callEndpoint('dispatch', setFlashQueue)}
-                                disabled={!canDispatch}
-                                style={{
-                                    padding: '12px',
-                                    background: 'transparent',
-                                    border: `2px solid ${canDispatch ? '#137333' : '#e0e0e0'}`,
-                                    color: canDispatch ? '#137333' : '#aaa',
-                                    borderRadius: '6px',
-                                    cursor: canDispatch ? 'pointer' : 'not-allowed',
-                                    fontWeight: '600',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
-                                }}
-                            >
-                                🚀 Dispatch Plan
-                            </button>
-
-                            <button
-                                onClick={() => callEndpoint('flush-plan', setFlashPlan)}
-                                style={{
-                                    padding: '8px',
-                                    background: 'transparent',
-                                    color: '#d93025',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9em'
-                                }}
-                            >
-                                Clear Plan
-                            </button>
                         </div>
                     </div>
-                </div>
 
-                {/* 2. WORK CONTROL */}
-                <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '25px',
-                    boxShadow: flashQueue ? '0 0 0 2px #fbbc04' : '0 2px 8px rgba(0,0,0,0.05)',
-                }}>
-                    <h2 style={{ marginTop: 0, borderBottom: '2px solid #f1f3f4', paddingBottom: '10px' }}>2. Work Control</h2>
+                    {/* 2. WORK CONTROL */}
+                    <div style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: flashQueue ? '0 0 0 4px rgba(227,116,0,0.3)' : '0 1px 3px rgba(0,0,0,0.12)',
+                        transition: 'box-shadow 0.3s'
+                    }}>
+                        <h2 style={{
+                            margin: 0,
+                            padding: '15px 25px',
+                            background: '#e37400',
+                            color: 'white',
+                            fontSize: '1.1em'
+                        }}>
+                            2. Work Control
+                        </h2>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
-                        <div style={{ display: 'flex', gap: '30px' }}>
-                            <div>
-                                <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#1a73e8' }}>{status.queued_jobs}</div>
-                                <div style={{ fontSize: '0.8em', color: '#666', textTransform: 'uppercase' }}>Queued</div>
+                        <div style={{ padding: '25px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', gap: '30px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#1a73e8' }}>{status.queued_jobs}</div>
+                                        <div style={{ fontSize: '0.8em', color: '#666', textTransform: 'uppercase' }}>Queued</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#e37400' }}>{status.outstanding_jobs}</div>
+                                        <div style={{ fontSize: '0.8em', color: '#666', textTransform: 'uppercase' }}>Outstanding</div>
+                                    </div>
+                                    <div style={{ paddingLeft: '20px', borderLeft: '1px solid #eee', display: 'flex', alignItems: 'center' }}>
+                                        <span style={{
+                                            padding: '6px 12px',
+                                            borderRadius: '20px',
+                                            background: isPlaying ? '#e6f4ea' : '#fce8e6',
+                                            color: isPlaying ? '#137333' : '#c5221f',
+                                            fontWeight: 'bold',
+                                            display: 'flex', alignItems: 'center', gap: '6px'
+                                        }}>
+                                            {isPlaying ? '▶ RUNNING' : '⏸ PAUSED'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '15px' }}>
+                                    <button
+                                        onClick={() => callEndpoint(isPlaying ? 'pause' : 'play')}
+                                        style={{
+                                            padding: '10px 20px',
+                                            background: 'white',
+                                            border: `2px solid ${isPlaying ? '#d93025' : '#137333'}`,
+                                            color: isPlaying ? '#d93025' : '#137333',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '1em',
+                                            display: 'flex', alignItems: 'center', gap: '8px',
+                                            minWidth: '140px',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        {isPlaying ? '⏸ Pause Work' : '▶ Resume Work'}
+                                    </button>
+                                </div>
                             </div>
-                            <div>
-                                <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#e37400' }}>{status.outstanding_jobs}</div>
-                                <div style={{ fontSize: '0.8em', color: '#666', textTransform: 'uppercase' }}>Outstanding</div>
+                            <div style={{ marginTop: '15px', textAlign: 'right' }}>
+                                <button onClick={() => callEndpoint('flush-queue', setFlashQueue)} style={{ color: '#d93025', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9em' }}>
+                                    Flush Queue
+                                </button>
                             </div>
-                            <div style={{ paddingLeft: '20px', borderLeft: '1px solid #eee', display: 'flex', alignItems: 'center' }}>
-                                <span style={{
-                                    padding: '6px 12px',
-                                    borderRadius: '20px',
-                                    background: isPlaying ? '#e6f4ea' : '#fce8e6',
-                                    color: isPlaying ? '#137333' : '#c5221f',
-                                    fontWeight: 'bold',
-                                    display: 'flex', alignItems: 'center', gap: '6px'
-                                }}>
-                                    {isPlaying ? '▶ RUNNING' : '⏸ PAUSED'}
+                        </div>
+                    </div>
+
+                    {/* 3. COMPLETION */}
+                    <div style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: flashComplete ? '0 0 0 4px rgba(24,128,56,0.3)' : '0 1px 3px rgba(0,0,0,0.12)',
+                        transition: 'box-shadow 0.3s'
+                    }}>
+                        <h2 style={{
+                            margin: 0,
+                            padding: '15px 25px',
+                            background: '#188038',
+                            color: 'white',
+                            fontSize: '1.1em',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <span>3. Completion</span>
+                            {hasResultsInMemory && (
+                                <span style={{ fontSize: '0.7em', color: '#d93025', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                                    ⚠️ Unsaved Results
                                 </span>
+                            )}
+                        </h2>
+
+                        <div style={{ padding: '25px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '2.5em', fontWeight: 'bold', color: '#137333', marginBottom: '10px' }}>
+                                {status.completed_jobs}
+                            </div>
+                            <div style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>Completed Jobs</div>
+
+                            <div style={{ display: 'flex', gap: '10px', maxWidth: '500px', margin: '0 auto', alignItems: 'stretch' }}>
+                                <input
+                                    type="text"
+                                    value={collectLabel}
+                                    onChange={(e) => setCollectLabel(e.target.value)}
+                                    placeholder="e.g. test_run_v1 (optional)"
+                                    style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                                />
+                                <button
+                                    onClick={collectResults}
+                                    disabled={!hasResultsInMemory}
+                                    style={{
+                                        padding: '0 20px',
+                                        background: readyToCollect ? '#1e8e3e' : '#e0e0e0',
+                                        color: readyToCollect ? 'white' : '#888',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        fontWeight: 'bold',
+                                        cursor: hasResultsInMemory ? 'pointer' : 'not-allowed',
+                                        boxShadow: readyToCollect ? '0 2px 6px rgba(30,142,62,0.3)' : 'none'
+                                    }}
+                                >
+                                    {readyToCollect ? '✓ Collect to Disk' : 'Collect Results'}
+                                </button>
+                            </div>
+
+                            {message && (
+                                <div style={{ marginTop: '20px', padding: '10px', background: '#f8f9fa', borderRadius: '6px', fontSize: '0.9em', color: '#333' }}>
+                                    {message}
+                                </div>
+                            )}
+
+                            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                                <button onClick={forceCollect} style={{ color: '#f9ab00', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85em' }}>
+                                    ⚠️ Force Collect
+                                </button>
+                                <button onClick={() => callEndpoint('reset', setFlashComplete)} style={{ color: '#d93025', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85em' }}>
+                                    Reset / Flush
+                                </button>
                             </div>
                         </div>
-
-                        <div style={{ display: 'flex', gap: '15px' }}>
-                            <button
-                                onClick={() => callEndpoint(isPlaying ? 'pause' : 'play')}
-                                style={{
-                                    padding: '10px 20px',
-                                    background: 'white',
-                                    border: `2px solid ${isPlaying ? '#d93025' : '#137333'}`,
-                                    color: isPlaying ? '#d93025' : '#137333',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
-                                    fontSize: '1em',
-                                    display: 'flex', alignItems: 'center', gap: '8px',
-                                    minWidth: '140px',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                {isPlaying ? '⏸ Pause Work' : '▶ Resume Work'}
-                            </button>
-                        </div>
-                    </div>
-                    <div style={{ marginTop: '15px', textAlign: 'right' }}>
-                        <button onClick={() => callEndpoint('flush-queue', setFlashQueue)} style={{ color: '#d93025', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9em' }}>
-                            Flush Queue
-                        </button>
                     </div>
                 </div>
 
-                {/* 3. COMPLETION */}
-                <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '25px',
-                    boxShadow: flashComplete ? '0 0 0 2px #137333' : '0 2px 8px rgba(0,0,0,0.05)',
-                }}>
-                    <h2 style={{ marginTop: 0, borderBottom: '2px solid #f1f3f4', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                        3. Completion
-                        {hasResultsInMemory && (
-                            <span style={{ fontSize: '0.6em', color: '#d93025', background: '#fce8e6', padding: '4px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                💾⚠️ Results in memory
-                            </span>
-                        )}
-                    </h2>
-
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '2.5em', fontWeight: 'bold', color: '#137333', marginBottom: '10px' }}>
-                            {status.completed_jobs}
-                        </div>
-                        <div style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>Completed Jobs</div>
-
-                        <div style={{ display: 'flex', gap: '10px', maxWidth: '500px', margin: '0 auto', alignItems: 'stretch' }}>
-                            <input
-                                type="text"
-                                value={collectLabel}
-                                onChange={(e) => setCollectLabel(e.target.value)}
-                                placeholder="e.g. test_run_v1 (optional)"
-                                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
-                            />
-                            <button
-                                onClick={collectResults}
-                                disabled={!hasResultsInMemory}
-                                style={{
-                                    padding: '0 20px',
-                                    background: readyToCollect ? '#1e8e3e' : '#e0e0e0',
-                                    color: readyToCollect ? 'white' : '#888',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    fontWeight: 'bold',
-                                    cursor: hasResultsInMemory ? 'pointer' : 'not-allowed',
-                                    boxShadow: readyToCollect ? '0 2px 6px rgba(30,142,62,0.3)' : 'none'
-                                }}
-                            >
-                                {readyToCollect ? '✓ Collect to Disk' : 'Collect Results'}
-                            </button>
-                        </div>
-
-                        {message && (
-                            <div style={{ marginTop: '20px', padding: '10px', background: '#f8f9fa', borderRadius: '6px', fontSize: '0.9em', color: '#333' }}>
-                                {message}
+                {/* Create Project Modal */}
+                {showCreateProject && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        zIndex: 2000
+                    }}>
+                        <div style={{ background: 'white', padding: '30px', borderRadius: '12px', minWidth: '400px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+                            <h3 style={{ marginTop: 0 }}>Create New Project</h3>
+                            <div style={{ marginBottom: '15px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px' }}>Name</label>
+                                <input
+                                    type="text"
+                                    value={newProjectName}
+                                    onChange={(e) => setNewProjectName(e.target.value)}
+                                    placeholder="project_name_snake_case"
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                                />
                             </div>
-                        )}
-
-                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                            <button onClick={forceCollect} style={{ color: '#f9ab00', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85em' }}>
-                                ⚠️ Force Collect
-                            </button>
-                            <button onClick={() => callEndpoint('reset', setFlashComplete)} style={{ color: '#d93025', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85em' }}>
-                                Reset / Flush
-                            </button>
+                            <div style={{ marginBottom: '25px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px' }}>Description</label>
+                                <input
+                                    type="text"
+                                    value={newProjectDesc}
+                                    onChange={(e) => setNewProjectDesc(e.target.value)}
+                                    placeholder="What is this project?"
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                <button onClick={() => setShowCreateProject(false)} style={{ padding: '10px 20px', background: 'none', border: 'none', cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={createProject} style={{ padding: '10px 20px', background: '#1a73e8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Create Project</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
+                {/* Closing divs for new layout */}
             </div>
-
-            {/* Create Project Modal */}
-            {showCreateProject && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    zIndex: 2000
-                }}>
-                    <div style={{ background: 'white', padding: '30px', borderRadius: '12px', minWidth: '400px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ marginTop: 0 }}>Create New Project</h3>
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>Name</label>
-                            <input
-                                type="text"
-                                value={newProjectName}
-                                onChange={(e) => setNewProjectName(e.target.value)}
-                                placeholder="project_name_snake_case"
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
-                            />
-                        </div>
-                        <div style={{ marginBottom: '25px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>Description</label>
-                            <input
-                                type="text"
-                                value={newProjectDesc}
-                                onChange={(e) => setNewProjectDesc(e.target.value)}
-                                placeholder="What is this project?"
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
-                            />
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                            <button onClick={() => setShowCreateProject(false)} style={{ padding: '10px 20px', background: 'none', border: 'none', cursor: 'pointer' }}>Cancel</button>
-                            <button onClick={createProject} style={{ padding: '10px 20px', background: '#1a73e8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Create Project</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

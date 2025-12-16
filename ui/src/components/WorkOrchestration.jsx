@@ -181,6 +181,50 @@ export default function WorkOrchestration() {
         <div>
             <h1>Work Orchestration</h1>
 
+            {/* Git Status Box */}
+            <div style={{
+                marginBottom: '20px',
+                padding: '10px',
+                border: '2px solid ' + (gitStatus.is_clean ? '#28a745' : '#ffc107'),
+                background: gitStatus.is_clean ? '#d4edda' : '#fff3cd'
+            }}>
+                <h2>0. Git Status</h2>
+                {gitStatus.is_clean ? (
+                    <div>
+                        <p style={{ color: '#155724', fontWeight: 'bold' }}>
+                            ✓ Repository Clean
+                        </p>
+                        <p style={{ fontSize: '0.9em', margin: '5px 0' }}>
+                            Commit: {gitStatus.current_commit?.hash?.substring(0, 8)}
+                        </p>
+                    </div>
+                ) : (
+                    <div>
+                        <p style={{ color: '#856404', fontWeight: 'bold' }}>
+                            ⚠️ Repository Dirty
+                        </p>
+                        <p style={{ fontSize: '0.9em', margin: '5px 0' }}>
+                            {gitStatus.uncommitted_files.length} uncommitted file(s)
+                        </p>
+                        <details style={{ marginTop: '10px' }}>
+                            <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
+                                View Files
+                            </summary>
+                            <ul style={{ marginTop: '5px', fontSize: '0.85em' }}>
+                                {gitStatus.uncommitted_files.map((file, idx) => (
+                                    <li key={idx}><code>{file}</code></li>
+                                ))}
+                            </ul>
+                        </details>
+                        <div style={{ marginTop: '10px', padding: '10px', background: '#fff', border: '1px solid #ffc107' }}>
+                            <strong>⚠️ Warning:</strong> Making plans, dispatching, or collecting requires a clean repository.
+                            <br />
+                            <strong>Solution:</strong> Commit your changes before proceeding.
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {/* Planning Section */}
             <div style={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc' }}>
                 <h2>1. Planning</h2>
@@ -228,12 +272,13 @@ export default function WorkOrchestration() {
                 </button>
             </div>
 
-            {/* Dispatch Section */}
+            {/* Work Control Section */}
             <div style={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc' }}>
                 <h2>2. Work Control</h2>
                 <p className={flashQueue ? 'flash' : ''}>
                     Queued Jobs: <strong>{status.queued_jobs}</strong>
                 </p>
+                <p>Outstanding Jobs: <strong>{status.outstanding_jobs || 0}</strong></p>
                 <p>State: <strong>{status.work_state}</strong></p>
 
                 <button
@@ -260,16 +305,6 @@ export default function WorkOrchestration() {
                 </p>
                 {status.current_plan && (
                     <p>Output: <strong>{status.current_plan.output_dir}/{status.current_plan.output_file}_*.jsonl</strong></p>
-                )}
-
-                {/* Git Status Warning */}
-                {!gitStatus.is_clean && (
-                    <div style={{ padding: '10px', background: '#fff3cd', border: '1px solid #ffc107', marginBottom: '10px' }}>
-                        <strong>⚠️ Repository Dirty</strong>
-                        <p style={{ margin: '5px 0', fontSize: '0.9em' }}>
-                            {gitStatus.uncommitted_files.length} uncommitted file(s)
-                        </p>
-                    </div>
                 )}
 
                 <div style={{ marginBottom: '10px' }}>

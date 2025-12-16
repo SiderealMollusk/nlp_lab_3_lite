@@ -75,12 +75,13 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    logger.info("Root endpoint accessed")
-    return {"message": "Hello from Work API", "work_dir": os.getcwd()}
+    return {"message": "Work Orchestration API"}
+
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    """Health check endpoint"""
+    return {"status": "ok", "service": "work_api"}
 
 
 @app.get("/plans")

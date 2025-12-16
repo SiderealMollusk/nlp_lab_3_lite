@@ -8,8 +8,10 @@ services:
     volumes:
       - .:/repo # Read-write for stash operations
       - ./git_service:/app
+      - /var/run/docker.sock:/var/run/docker.sock # Docker control
     environment:
       - ENVIRONMENT=development
+      - COMPOSE_PROJECT_NAME=nlp_lab_3_lite
 
   ui:
     build:

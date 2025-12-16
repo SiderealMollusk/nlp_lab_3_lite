@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Install dependencies
-RUN pip install fastapi uvicorn
+RUN pip install fastapi uvicorn docker
 
 # Copy service code
 COPY main.py .

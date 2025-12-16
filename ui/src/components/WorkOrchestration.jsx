@@ -390,8 +390,8 @@ export default function WorkOrchestration() {
                                                 <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                                                     <span>{f}</span>
                                                     <a
-                                                        href={`vscode://file${config.project_root}/${f}`}
-                                                        title="Open in VS Code"
+                                                        href={`${config.ide_scheme || 'vscode'}://file${config.project_root}/${f}`}
+                                                        title={`Open in ${config.ide_scheme || 'Editor'}`}
                                                         style={{ textDecoration: 'none', cursor: 'pointer' }}
                                                     >
                                                         📝
@@ -729,7 +729,7 @@ export default function WorkOrchestration() {
                             <div style={{ marginBottom: '20px', fontSize: '0.85em', color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <span>📂 results/</span>
                                 <a
-                                    href={`vscode://file${config.project_root}/data/analysis/${projects.current_project}`}
+                                    href={`${config.ide_scheme || 'vscode'}://file${config.project_root}/data/analysis/${projects.current_project}`}
                                     title="Open Results Folder"
                                     style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '1.1em' }}
                                 >
@@ -823,6 +823,7 @@ export default function WorkOrchestration() {
             {/* Debug Footer */}
             <div style={{ textAlign: 'center', marginTop: '30px', color: '#ccc', fontSize: '0.8em', fontFamily: 'monospace' }}>
                 PROJECT_ROOT: {config.project_root || "(Not Detected)"} <br />
+                IDE_SCHEME: {config.ide_scheme || "vscode"} <br />
                 API: http://localhost:8000
             </div>
         </div>

@@ -152,7 +152,8 @@ def get_config():
     """Return runtime configuration."""
     import os
     return {
-        "project_root": os.getenv("PROJECT_ROOT", "")
+        "project_root": os.getenv("PROJECT_ROOT", ""),
+        "ide_scheme": os.getenv("IDE_SCHEME", "vscode")
     }
 
 

@@ -1,0 +1,24 @@
+
+# System and IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Environment
+.env
+.venv
+venv/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Data and Artifacts
+# Assuming data/ might contain large datasets or generated content
+# Uncomment below if data should be ignored
+# data/
+# work/
+
+# Logs
+*.log

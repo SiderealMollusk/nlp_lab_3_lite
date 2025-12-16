@@ -52,10 +52,10 @@ def health_check():
 
 @app.get("/git/status")
 def get_git_status():
-    """Check if working tree is clean."""
+    """Check if working tree is clean (ignoring submodules)."""
     try:
-        # Get status
-        status_output = run_git_command(["git", "status", "--porcelain"])
+        # Get status, ignoring submodules
+        status_output = run_git_command(["git", "status", "--porcelain", "--ignore-submodules"])
         
         # Get current commit
         current_hash = run_git_command(["git", "rev-parse", "HEAD"])

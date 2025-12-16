@@ -37,6 +37,17 @@ tasks:
       # 4. Task (Meta-check)
       - cmd: echo "✅ Taskfile is running (obviously)"
         silent: true
+
+      # 5. Configure .env
+      - cmd: |
+          touch .env
+          # Remove existing PROJECT_ROOT if present
+          grep -v "PROJECT_ROOT" .env > .env.tmp || true
+          mv .env.tmp .env
+          # Append current directory
+          echo "PROJECT_ROOT=$PWD" >> .env
+          echo "✅ Configured PROJECT_ROOT in .env"
+        silent: true
         
       - echo "🎉 Environment verified! You are ready to run 'task up'"
 

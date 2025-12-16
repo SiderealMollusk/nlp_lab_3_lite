@@ -10,8 +10,17 @@ export default function WorkOrchestration() {
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState('');
     const [files, setFiles] = useState({ corpus: [], analysis_dirs: [] });
-    const [fileInputs, setFileInputs] = useState({});
-    const [collectLabel, setCollectLabel] = useState('');
+    const [config, setConfig] = useState({ project_root: '' });
+
+    // Fetch config
+    useEffect(() => {
+        fetch('http://localhost:8000/config')
+            .then(res => res.json())
+            .then(data => setConfig(data))
+            .catch(err => console.error('Error fetching config:', err));
+    }, []);
+
+    // Fetch initial status and plans
     const [gitStatus, setGitStatus] = useState({ is_clean: true, uncommitted_files: [] });
     const [projects, setProjects] = useState({ current_project: 'default', projects: [] });
     const [showCreateProject, setShowCreateProject] = useState(false);
@@ -379,7 +388,7 @@ export default function WorkOrchestration() {
                                                 <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                                                     <span>{f}</span>
                                                     <a
-                                                        href={`vscode://file//Users/virgil/Developer/nlp_lab_3_lite/${f}`}
+                                                        href={`vscode://file${config.project_root}/${f}`}
                                                         title="Open in VS Code"
                                                         style={{ textDecoration: 'none', cursor: 'pointer' }}
                                                     >

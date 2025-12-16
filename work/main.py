@@ -147,6 +147,15 @@ def list_files():
     return files
 
 
+@app.get("/config")
+def get_config():
+    """Return runtime configuration."""
+    import os
+    return {
+        "project_root": os.getenv("PROJECT_ROOT", "")
+    }
+
+
 @app.get("/status")
 def get_status():
     import workflow

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import WorkControls from './components/WorkControls'
+import JobsList from './components/JobsList'
 
 function App() {
   return (
@@ -9,10 +10,9 @@ function App() {
       <p>Work Orchestration Interface</p>
 
       <WorkControls />
+      <JobsList />
     </div>
   )
 }
 
 export default App
-
-

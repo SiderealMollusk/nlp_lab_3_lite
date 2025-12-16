@@ -7,7 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-MANIFEST_PATH = '/app/data/work_manifest.jsonl'
+MANIFEST_PATH = '/app/work_manifest.jsonl'
 
 
 def count_planned_jobs():

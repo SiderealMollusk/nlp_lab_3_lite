@@ -28,3 +28,4 @@ dist/
 dist-ssr/
 *.local
 
+work/work_manifest.jsonl

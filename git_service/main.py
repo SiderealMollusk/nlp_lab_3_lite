@@ -332,10 +332,16 @@ def switch_project(project: str):
         except requests.RequestException:
             logger.warning("Could not check work_api status")
         
+        # Set to "--" immediately for UI feedback
+        data['current_project'] = "--"
+        save_projects(data)
+        run_git_command(["git", "-C", "/repo", "add", "projects.json"])
+        run_git_command(["git", "-C", "/repo", "commit", "-m", "Switching projects..."])
+        
         # Checkout branch
         run_git_command(["git", "-C", "/repo/data", "checkout", proj['branch']])
         
-        # Update current project
+        # Update to actual project
         data['current_project'] = project
         save_projects(data)
         

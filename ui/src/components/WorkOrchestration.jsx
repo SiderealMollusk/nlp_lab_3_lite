@@ -156,6 +156,28 @@ export default function WorkOrchestration() {
         }
     };
 
+    // Poll projects state (to catch the '--' state during switching)
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch('http://localhost:8001/projects');
+                const data = await response.json();
+                setProjects(data);
+
+                // Keep target project synced with current unless user changed it or we are switching
+                if (data.current_project !== '--' && !showProjectControls) {
+                    setTargetProject(data.current_project);
+                }
+            } catch (error) {
+                console.error('Error polling projects:', error);
+            }
+        }, 2000);
+        return () => clearInterval(interval);
+    }, [showProjectControls]);
+
+    const [targetProject, setTargetProject] = useState(projects.current_project);
+    const [showProjectControls, setShowProjectControls] = useState(false);
+
     const forceCollect = async () => {
         if (!window.confirm('Force collect will mark results as DIRTY. Continue?')) {
             return;
@@ -194,11 +216,7 @@ export default function WorkOrchestration() {
                 setShowCreateProject(false);
                 setNewProjectName('');
                 setNewProjectDesc('');
-
-                // Refresh projects list
-                const projResponse = await fetch('http://localhost:8001/projects');
-                const projData = await projResponse.json();
-                setProjects(projData);
+                setTargetProject(newProjectName); // Set target to new project
             } else {
                 setMessage(data.detail || 'Failed to create project');
             }
@@ -207,26 +225,21 @@ export default function WorkOrchestration() {
         }
     };
 
-    const switchProject = async (projectName) => {
-        if (projectName === projects.current_project) return;
+    const switchProject = async () => {
+        if (targetProject === projects.current_project) return;
 
         setSwitching(true);
-        setMessage(`Switching to ${projectName}...`);
+        setMessage(`Switching to ${targetProject}...`);
 
         try {
             const response = await fetch(
-                `http://localhost:8001/projects/switch?project=${encodeURIComponent(projectName)}`,
+                `http://localhost:8001/projects/switch?project=${encodeURIComponent(targetProject)}`,
                 { method: 'POST' }
             );
             const data = await response.json();
 
             if (data.status === 'switched' || data.status === 'already_active') {
-                setMessage(`Switched to project: ${projectName}`);
-
-                // Refresh projects list
-                const projResponse = await fetch('http://localhost:8001/projects');
-                const projData = await projResponse.json();
-                setProjects(projData);
+                setMessage(`Switched to project: ${targetProject}`);
             } else {
                 setMessage(data.detail || 'Failed to switch project');
             }
@@ -234,6 +247,7 @@ export default function WorkOrchestration() {
             setMessage(`Error: ${error.message}`);
         } finally {
             setSwitching(false);
+            setShowProjectControls(false);
         }
     };
 
@@ -243,19 +257,23 @@ export default function WorkOrchestration() {
                 method: 'POST',
             });
             const data = await response.json();
-            setMessage(data.message);
-
-            if (data.status === 'success' && flashSetter) {
+            if (flashSetter) {
                 flashSetter(true);
-                setTimeout(() => flashSetter(false), 1000);
+                setTimeout(() => flashSetter(false), 500);
             }
+            // If we reset, completed jobs is 0
+            if (endpoint === 'reset') {
+                setStatus(prev => ({ ...prev, completed_jobs: 0 }));
+            }
+            if (data.message) setMessage(data.message);
         } catch (error) {
-            setMessage(`Error: ${error.message}`);
+            setMessage(`Error calling ${endpoint}: ${error.message}`);
         }
     };
 
-    const canMakePlan = status.planned_jobs === 0;
-    const canDispatch = status.planned_jobs > 0 && status.queued_jobs === 0;
+    // Calculate derived state
+    const canMakePlan = selectedPlan && !gitStatus.uncommitted_files.length;
+    const canDispatch = status.queued_jobs > 0 && !gitStatus.uncommitted_files.length;
 
     return (
         <div>
@@ -268,34 +286,59 @@ export default function WorkOrchestration() {
                 border: '2px solid ' + (gitStatus.is_clean ? '#28a745' : '#ffc107'),
                 background: gitStatus.is_clean ? '#d4edda' : '#fff3cd'
             }}>
-                <h2>0. Git Status & Project</h2>
-
-                {/* Project Selector */}
-                <div style={{ marginBottom: '15px', padding: '10px', background: '#fff', border: '1px solid #ddd' }}>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label style={{ fontWeight: 'bold' }}>Current Project: </label>
-                        <select
-                            value={projects.current_project}
-                            onChange={(e) => switchProject(e.target.value)}
-                            disabled={switching}
-                            style={{ marginLeft: '10px', padding: '5px' }}
-                        >
-                            {projects.projects.map(p => (
-                                <option key={p.name} value={p.name}>
-                                    {p.name} {p.description ? `- ${p.description}` : ''}
-                                </option>
-                            ))}
-                        </select>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h2 style={{ margin: 0 }}>0. Git Status</h2>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span style={{ marginRight: '10px', fontSize: '1.1em' }}>
+                            Current Project: <strong>{projects.current_project}</strong>
+                        </span>
                         <button
-                            onClick={() => setShowCreateProject(true)}
-                            style={{ marginLeft: '10px', padding: '5px 10px' }}
+                            onClick={() => setShowProjectControls(!showProjectControls)}
+                            style={{ padding: '5px 10px', fontSize: '1.2em', cursor: 'pointer' }}
+                            title="Manage Projects"
                             disabled={switching}
                         >
-                            + New Project
+                            ⚙️
                         </button>
                     </div>
-                    {switching && <p style={{ color: '#856404', fontSize: '0.9em' }}>⏳ Switching projects...</p>}
                 </div>
+
+                {/* Project Controls (Hidden behind gear) */}
+                {showProjectControls && (
+                    <div style={{ marginBottom: '15px', padding: '15px', background: '#fff', border: '1px solid #ddd', borderRadius: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                            <label style={{ fontWeight: 'bold' }}>Switch To: </label>
+                            <select
+                                value={targetProject}
+                                onChange={(e) => setTargetProject(e.target.value)}
+                                disabled={switching}
+                                style={{ padding: '5px', minWidth: '200px' }}
+                            >
+                                {projects.projects.map(p => (
+                                    <option key={p.name} value={p.name}>
+                                        {p.name} {p.description ? `- ${p.description}` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                onClick={switchProject}
+                                disabled={switching || targetProject === projects.current_project}
+                                style={{ padding: '5px 15px', fontWeight: 'bold' }}
+                            >
+                                Switch
+                            </button>
+                            <div style={{ flexGrow: 1 }}></div>
+                            <button
+                                onClick={() => setShowCreateProject(true)}
+                                disabled={switching}
+                                style={{ padding: '5px 10px', fontSize: '0.9em' }}
+                            >
+                                + New Project
+                            </button>
+                        </div>
+                        {switching && <p style={{ color: '#856404', fontSize: '0.9em', marginTop: '10px' }}>⏳ Switching projects...</p>}
+                    </div>
+                )}
 
                 {/* Create Project Modal */}
                 {showCreateProject && (

@@ -274,13 +274,19 @@ export default function WorkOrchestration() {
     const handleMakePlan = async () => {
         if (!selectedPlan) return;
 
+        // Auto-select first corpus if available
+        let corpusPath = 'corpus.jsonl';
+        if (files && files.corpus && files.corpus.length > 0) {
+            corpusPath = files.corpus[0].path;
+        }
+
         try {
             const response = await fetch('http://localhost:8000/make-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     plan: selectedPlan,
-                    inputs: { corpus: 'corpus.jsonl' } // Hardcoded for now based on UI
+                    inputs: { corpus: corpusPath }
                 })
             });
             const data = await response.json();
@@ -618,38 +624,22 @@ export default function WorkOrchestration() {
 
                         <div style={{ display: 'flex', gap: '15px' }}>
                             <button
-                                onClick={() => callEndpoint('play')}
-                                disabled={isPlaying}
+                                onClick={() => callEndpoint(isPlaying ? 'pause' : 'play')}
                                 style={{
                                     padding: '10px 20px',
                                     background: 'white',
-                                    border: '2px solid #137333',
-                                    color: '#137333',
+                                    border: `2px solid ${isPlaying ? '#d93025' : '#137333'}`,
+                                    color: isPlaying ? '#d93025' : '#137333',
                                     borderRadius: '6px',
-                                    cursor: isPlaying ? 'default' : 'pointer',
-                                    opacity: isPlaying ? 0.3 : 1,
+                                    cursor: 'pointer',
                                     fontWeight: 'bold',
-                                    fontSize: '1em'
+                                    fontSize: '1em',
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    minWidth: '140px',
+                                    justifyContent: 'center'
                                 }}
                             >
-                                ▶ Play
-                            </button>
-                            <button
-                                onClick={() => callEndpoint('pause')}
-                                disabled={isPaused}
-                                style={{
-                                    padding: '10px 20px',
-                                    background: 'white',
-                                    border: '2px solid #d93025',
-                                    color: '#d93025',
-                                    borderRadius: '6px',
-                                    cursor: isPaused ? 'default' : 'pointer',
-                                    opacity: isPaused ? 0.3 : 1,
-                                    fontWeight: 'bold',
-                                    fontSize: '1em'
-                                }}
-                            >
-                                ⏸ Pause
+                                {isPlaying ? '⏸ Pause Work' : '▶ Resume Work'}
                             </button>
                         </div>
                     </div>

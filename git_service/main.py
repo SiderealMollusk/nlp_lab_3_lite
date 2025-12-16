@@ -250,6 +250,11 @@ def list_projects():
 def create_project(name: str, description: str = ""):
     """Create a new project branch"""
     try:
+        # Check if repo is clean
+        status_output = run_git_command(["git", "-C", "/repo", "status", "--porcelain", "--ignore-submodules"])
+        if len(status_output) > 0:
+            raise HTTPException(400, "Repository must be clean to create project. Commit your changes first.")
+        
         # Validate name
         if not name or not name.replace("_", "").replace("-", "").isalnum():
             raise HTTPException(400, "Invalid project name")
@@ -278,6 +283,10 @@ def create_project(name: str, description: str = ""):
         # Save projects.json (in source repo, not data)
         save_projects(data)
         
+        # Auto-commit projects.json to keep repo clean
+        run_git_command(["git", "-C", "/repo", "add", "projects.json"])
+        run_git_command(["git", "-C", "/repo", "commit", "-m", f"Create project: {name}"])
+        
         # Switch back to current project
         current_branch = next(p['branch'] for p in data['projects'] if p['name'] == data['current_project'])
         run_git_command(["git", "-C", "/repo/data", "checkout", current_branch])
@@ -296,6 +305,11 @@ def create_project(name: str, description: str = ""):
 def switch_project(project: str):
     """Switch to a different project"""
     try:
+        # Check if repo is clean
+        status_output = run_git_command(["git", "-C", "/repo", "status", "--porcelain", "--ignore-submodules"])
+        if len(status_output) > 0:
+            raise HTTPException(400, "Repository must be clean to switch projects. Commit your changes first.")
+        
         # Load projects
         data = load_projects()
         
@@ -324,6 +338,10 @@ def switch_project(project: str):
         # Update current project
         data['current_project'] = project
         save_projects(data)
+        
+        # Auto-commit projects.json to keep repo clean
+        run_git_command(["git", "-C", "/repo", "add", "projects.json"])
+        run_git_command(["git", "-C", "/repo", "commit", "-m", f"Switch to project: {project}"])
         
         # Restart containers
         restart_containers()

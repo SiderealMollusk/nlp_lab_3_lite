@@ -7,6 +7,13 @@
       "description": "Default project",
       "created": "2025-12-16T14:38:00Z",
       "commits": []
+    },
+    {
+      "name": "fire_upon_the_projects",
+      "branch": "project-fire_upon_the_projects",
+      "description": "testing the project switching behavior",
+      "created": "2025-12-16T22:42:03.675522Z",
+      "commits": []
     }
   ]
 }

@@ -283,6 +283,121 @@ def collect_results(label: str = ""):
         return {"message": str(e), "status": "error"}
 
 
+@app.post("/collect-force")
+def collect_results_force(label: str = ""):
+    """Force collect results even if repo is dirty. Marks output as DIRTY."""
+    import os
+    import json
+    from datetime import datetime
+    
+    try:
+        # Get results from work manager
+        if not work_manager.results:
+            return {"message": "No results to collect", "status": "error"}
+        
+        # Get plan metadata
+        plan_meta = getattr(work_manager, 'current_plan_metadata', {})
+        output_file = plan_meta.get("output_file", "results")
+        output_dir = plan_meta.get("output_dir", "analysis/default")
+        
+        # Sort results by task_number
+        sorted_results = sorted(work_manager.results.values(), key=lambda x: x.get('task_number', 0))
+        
+        # Get first job GUID (first 8 chars)
+        first_guid = sorted_results[0]['job_guid'][:8] if sorted_results else "00000000"
+        
+        # Generate filename components
+        finish_time = datetime.now().strftime("%H-%M")
+        
+        # Find next available sequence number
+        base_dir = f"/app/data/{output_dir}"
+        os.makedirs(base_dir, exist_ok=True)
+        
+        seq_num = 1
+        while True:
+            # Build filename with DIRTY marker
+            parts = [output_file, finish_time, f"{seq_num:03d}", first_guid]
+            if label:
+                parts.append(label)
+            parts.append("DIRTY")  # Mark as dirty
+            filename = "_".join(parts) + ".jsonl"
+            filepath = os.path.join(base_dir, filename)
+            
+            if not os.path.exists(filepath):
+                break
+            seq_num += 1
+        
+        # Write results
+        with open(filepath, 'w') as f:
+            for result in sorted_results:
+                f.write(json.dumps(result) + '\n')
+        
+        # Clear results
+        count = len(work_manager.results)
+        work_manager.results.clear()
+        
+        logger.warning(f"FORCE collected {count} results to {filepath} (DIRTY REPO)")
+        
+        return {
+            "message": f"Force collected {count} results (marked DIRTY)",
+            "filename": filename,
+            "path": filepath,
+            "count": count,
+            "warning": "Results collected from dirty repository",
+            "status": "success"
+        }
+        
+    except Exception as e:
+        logger.error(f"Force collect failed: {e}")
+        return {"message": str(e), "status": "error"}
+
+
+@app.post("/collect-with-stash")
+def collect_with_stash(label: str = ""):
+    """Stash changes, collect results, then pop stash."""
+    try:
+        # Stash changes
+        stash_response = requests.post(f"{GIT_SERVICE_URL}/git/stash", timeout=5)
+        stash_response.raise_for_status()
+        stash_data = stash_response.json()
+        
+        if not stash_data.get("stashed"):
+            # No changes to stash, just collect normally
+            return collect_results(label)
+        
+        logger.info("Stashed changes for collection")
+        
+        try:
+            # Collect results (repo is now clean)
+            result = collect_results(label)
+            
+            # Pop stash
+            pop_response = requests.post(f"{GIT_SERVICE_URL}/git/stash-pop", timeout=5)
+            pop_response.raise_for_status()
+            pop_data = pop_response.json()
+            
+            logger.info("Popped stash after collection")
+            
+            # Add stash info to result
+            if isinstance(result, dict):
+                result["stash_info"] = "Changes were stashed and restored"
+            
+            return result
+            
+        except Exception as e:
+            # If collect fails, try to pop stash anyway
+            logger.error(f"Collection failed, attempting to restore stash: {e}")
+            try:
+                requests.post(f"{GIT_SERVICE_URL}/git/stash-pop", timeout=5)
+            except:
+                logger.error("Failed to restore stash!")
+            raise
+            
+    except Exception as e:
+        logger.error(f"Stash-collect failed: {e}")
+        return {"message": str(e), "status": "error"}
+
+
 @app.post("/dispatch")
 def dispatch_endpoint():
     """Dispatch planned jobs to work manager. Requires clean repo."""

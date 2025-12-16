@@ -12,6 +12,7 @@ export default function WorkOrchestration() {
     const [files, setFiles] = useState({ corpus: [], analysis_dirs: [] });
     const [fileInputs, setFileInputs] = useState({});
     const [collectLabel, setCollectLabel] = useState('');
+    const [gitStatus, setGitStatus] = useState({ is_clean: true, uncommitted_files: [] });
     const [message, setMessage] = useState('');
     const [flashPlan, setFlashPlan] = useState(false);
     const [flashQueue, setFlashQueue] = useState(false);
@@ -63,6 +64,15 @@ export default function WorkOrchestration() {
                 }
 
                 setStatus(data);
+
+                // Also fetch git status
+                try {
+                    const gitResponse = await fetch('http://localhost:8001/git/status');
+                    const gitData = await gitResponse.json();
+                    setGitStatus(gitData);
+                } catch (err) {
+                    console.error('Error fetching git status:', err);
+                }
             } catch (error) {
                 console.error('Error fetching status:', error);
             }
@@ -105,6 +115,42 @@ export default function WorkOrchestration() {
 
             if (data.status === 'success') {
                 setCollectLabel(''); // Clear label after successful collect
+            }
+        } catch (error) {
+            setMessage(`Error: ${error.message}`);
+        }
+    };
+
+    const collectWithStash = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/collect-with-stash?label=${encodeURIComponent(collectLabel)}`, {
+                method: 'POST',
+            });
+            const data = await response.json();
+            setMessage(data.message + (data.filename ? ` → ${data.filename}` : ''));
+
+            if (data.status === 'success') {
+                setCollectLabel('');
+            }
+        } catch (error) {
+            setMessage(`Error: ${error.message}`);
+        }
+    };
+
+    const forceCollect = async () => {
+        if (!window.confirm('Force collect will mark results as DIRTY. Continue?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8000/collect-force?label=${encodeURIComponent(collectLabel)}`, {
+                method: 'POST',
+            });
+            const data = await response.json();
+            setMessage(data.message + (data.filename ? ` → ${data.filename}` : ''));
+
+            if (data.status === 'success') {
+                setCollectLabel('');
             }
         } catch (error) {
             setMessage(`Error: ${error.message}`);
@@ -216,6 +262,16 @@ export default function WorkOrchestration() {
                     <p>Output: <strong>{status.current_plan.output_dir}/{status.current_plan.output_file}_*.jsonl</strong></p>
                 )}
 
+                {/* Git Status Warning */}
+                {!gitStatus.is_clean && (
+                    <div style={{ padding: '10px', background: '#fff3cd', border: '1px solid #ffc107', marginBottom: '10px' }}>
+                        <strong>⚠️ Repository Dirty</strong>
+                        <p style={{ margin: '5px 0', fontSize: '0.9em' }}>
+                            {gitStatus.uncommitted_files.length} uncommitted file(s)
+                        </p>
+                    </div>
+                )}
+
                 <div style={{ marginBottom: '10px' }}>
                     <label>Label (optional): </label>
                     <input
@@ -226,9 +282,25 @@ export default function WorkOrchestration() {
                     />
                 </div>
 
-                <button onClick={collectResults} disabled={status.completed_jobs === 0}>
-                    Collect Results
-                </button>
+                {gitStatus.is_clean ? (
+                    <button onClick={collectResults} disabled={status.completed_jobs === 0}>
+                        Collect Results
+                    </button>
+                ) : (
+                    <>
+                        <button onClick={collectWithStash} disabled={status.completed_jobs === 0}>
+                            Stash & Collect
+                        </button>
+                        <button
+                            onClick={forceCollect}
+                            disabled={status.completed_jobs === 0}
+                            style={{ background: '#dc3545', color: 'white' }}
+                        >
+                            Force Collect (DIRTY)
+                        </button>
+                    </>
+                )}
+
                 <button onClick={() => callEndpoint('reset')}>
                     Flush Results
                 </button>

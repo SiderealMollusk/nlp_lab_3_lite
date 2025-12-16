@@ -112,3 +112,47 @@ def get_current_branch():
     except Exception as e:
         logger.error(f"Error getting branch: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/git/stash")
+def stash_changes():
+    """Stash current changes."""
+    try:
+        # Check if there are changes to stash
+        status_output = run_git_command(["git", "status", "--porcelain"])
+        if not status_output:
+            return {"message": "No changes to stash", "stashed": False}
+        
+        # Stash with message
+        stash_msg = run_git_command(["git", "stash", "push", "-m", "Auto-stash for collection"])
+        
+        return {
+            "message": "Changes stashed",
+            "stashed": True,
+            "stash_message": stash_msg
+        }
+    except Exception as e:
+        logger.error(f"Error stashing changes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/git/stash-pop")
+def stash_pop():
+    """Pop most recent stash."""
+    try:
+        # Check if there's a stash
+        stash_list = run_git_command(["git", "stash", "list"])
+        if not stash_list:
+            return {"message": "No stash to pop", "popped": False}
+        
+        # Pop stash
+        pop_msg = run_git_command(["git", "stash", "pop"])
+        
+        return {
+            "message": "Stash popped",
+            "popped": True,
+            "pop_message": pop_msg
+        }
+    except Exception as e:
+        logger.error(f"Error popping stash: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

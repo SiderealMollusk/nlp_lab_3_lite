@@ -6,7 +6,7 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - .:/repo:ro # Read-only access to repo
+      - .:/repo # Read-write for stash operations
       - ./git_service:/app
     environment:
       - ENVIRONMENT=development

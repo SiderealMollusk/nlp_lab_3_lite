@@ -273,7 +273,7 @@ export default function WorkOrchestration() {
 
     // Calculate derived state
     const canMakePlan = selectedPlan && !gitStatus.uncommitted_files.length;
-    const canDispatch = status.queued_jobs > 0 && !gitStatus.uncommitted_files.length;
+    const canDispatch = status.planned_jobs > 0 && !gitStatus.uncommitted_files.length;
 
     return (
         <div>

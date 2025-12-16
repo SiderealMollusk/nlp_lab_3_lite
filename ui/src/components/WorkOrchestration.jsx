@@ -375,7 +375,18 @@ export default function WorkOrchestration() {
                                     }}>
                                         <strong style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Uncommitted Changes:</strong>
                                         <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9em', color: '#555' }}>
-                                            {gitStatus.uncommitted_files.map((f, i) => <li key={i}>{f}</li>)}
+                                            {gitStatus.uncommitted_files.map((f, i) => (
+                                                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                    <span>{f}</span>
+                                                    <a
+                                                        href={`vscode://file//Users/virgil/Developer/nlp_lab_3_lite/${f}`}
+                                                        title="Open in VS Code"
+                                                        style={{ textDecoration: 'none', cursor: 'pointer' }}
+                                                    >
+                                                        📝
+                                                    </a>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
                                 </details>

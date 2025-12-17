@@ -21,7 +21,19 @@ export default function PlanningCard({
     const [lastCreatedPlan, setLastCreatedPlan] = useState(null);
 
     const openPlanFile = (path) => {
-        const link = `${config.ide_scheme || 'vscode'}://file${path.replace('/app', config.project_root)}`;
+        // Handle Docker Volume Mapping nuances
+        // /app/data -> PROJECT_ROOT/data
+        // /app/plans -> PROJECT_ROOT/work/plans
+        let hostPath = path;
+
+        if (path.startsWith('/app/data')) {
+            hostPath = path.replace('/app', config.project_root);
+        } else {
+            // Default /app mapping is to ./work
+            hostPath = path.replace('/app', `${config.project_root}/work`);
+        }
+
+        const link = `${config.ide_scheme || 'vscode'}://file${hostPath}`;
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = link;

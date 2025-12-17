@@ -1,18 +1,18 @@
 {
-  "current_project": "sample",
+  "current_project": "sample-small",
   "projects": [
     {
-      "name": "default",
-      "branch": "main",
-      "description": "Default project",
-      "created": "2025-12-16T14:38:00Z",
+      "name": "sample-small",
+      "branch": "project-sample-small",
+      "description": "Shakespeare's Sonnet 18 (14 lines). Good for quick debugging.",
+      "created": "2025-12-16T17:00:00Z",
       "commits": []
     },
     {
-      "name": "sample",
-      "branch": "project-sample",
-      "description": "A small corpus, public domain corpus, for fast iteration",
-      "created": "2025-12-17T00:43:14.273681Z",
+      "name": "sample-large",
+      "branch": "project-sample-large",
+      "description": "Frankenstein (Full Text). Good for stress testing.",
+      "created": "2025-12-16T17:01:00Z",
       "commits": []
     }
   ]

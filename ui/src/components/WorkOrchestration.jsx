@@ -729,17 +729,43 @@ export default function WorkOrchestration() {
                             </div>
                             <div style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>Completed Jobs</div>
 
-                            {/* Results Link */}
-                            <div style={{ marginBottom: '20px', fontSize: '0.85em', color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <span>📂 results/</span>
-                                <a
-                                    href={`${config.ide_scheme || 'vscode'}://file${config.project_root}/data/analysis/${projects.current_project}`}
-                                    title="Open Results Folder"
-                                    style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '1.1em' }}
-                                >
-                                    📝
-                                </a>
-                            </div>
+                            {/* LAST RESULT - PROMINENT LINK */}
+                            {lastResult && (
+                                <div style={{
+                                    marginBottom: '25px',
+                                    padding: '15px',
+                                    background: '#e6f4ea',
+                                    border: '1px solid #1e8e3e',
+                                    borderRadius: '8px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    animation: 'fadeIn 0.5s ease-in-out'
+                                }}>
+                                    <span style={{ fontSize: '0.9em', color: '#137333', fontWeight: 'bold' }}>🎉 Collection Complete!</span>
+                                    <a
+                                        href={`${config.ide_scheme || 'vscode'}://file${lastResult.path.replace('/app', config.project_root)}`}
+                                        title="Open Result File in Editor"
+                                        style={{
+                                            textDecoration: 'none',
+                                            cursor: 'pointer',
+                                            fontSize: '1.2em',
+                                            fontWeight: 'bold',
+                                            color: '#1e8e3e',
+                                            display: 'flex', alignItems: 'center', gap: '8px',
+                                            padding: '8px 16px',
+                                            background: 'white',
+                                            borderRadius: '20px',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                        }}
+                                    >
+                                        <span>📄 Open {lastResult.filename}</span>
+                                        <span style={{ fontSize: '1.4em' }}>📝</span>
+                                    </a>
+                                </div>
+                            )}
+
 
                             <div style={{ display: 'flex', gap: '10px', maxWidth: '500px', margin: '0 auto', alignItems: 'stretch' }}>
                                 <input

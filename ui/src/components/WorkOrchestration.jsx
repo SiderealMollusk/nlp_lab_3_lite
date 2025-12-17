@@ -244,29 +244,53 @@ export default function WorkOrchestration() {
         if (targetProject === projects.current_project) return;
 
         setSwitching(true);
-        setMessage(`Switching to ${targetProject}...`);
-
         try {
-            const response = await fetch(
-                `http://localhost:8001/projects/switch?project=${encodeURIComponent(targetProject)}`,
-                { method: 'POST' }
-            );
+            const response = await fetch(`http://localhost:8001/projects/switch?project=${encodeURIComponent(targetProject)}`, {
+                method: 'POST'
+            });
             const data = await response.json();
-
-            if (data.status === 'switched' || data.status === 'already_active') {
-                setMessage(`Switched to project: ${targetProject}`);
+            if (data.status === 'success') {
+                setMessage(`Switched to: ${targetProject}`);
+                setShowProjectControls(false);
+                setCollectLabel('');
             } else {
-                setMessage(data.detail || 'Failed to switch project');
+                setMessage(data.detail || 'Switch failed');
             }
         } catch (error) {
-            setMessage(`Error: ${error.message}`);
+            setMessage(`Switch error: ${error.message}`);
         } finally {
             setSwitching(false);
-            setShowProjectControls(false);
         }
     };
 
-    const callEndpoint = async (endpoint, flashSetter) => {
+    const createPlanStub = async () => {
+        const name = prompt("Enter new plan name (snake_case):");
+        if (!name) return;
+
+        try {
+            const response = await fetch(`http://localhost:8000/plans/create?name=${encodeURIComponent(name)}`, { method: 'POST' });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // Deep Link Trigger
+                const link = `${config.ide_scheme || 'vscode'}://file${data.path.replace('/app', config.project_root)}`;
+                window.location.href = link;
+
+                setMessage(`Created plan: ${data.name}`);
+                // Refresh plans
+                const plansRes = await fetch('http://localhost:8000/plans');
+                const plansData = await plansRes.json();
+                setPlans(plansData.plans);
+                setSelectedPlan(data.name);
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
+    const callEndpoint = async (endpoint, flashSetter = null) => {
         try {
             const response = await fetch(`http://localhost:8000/${endpoint}`, {
                 method: 'POST',
@@ -561,6 +585,22 @@ export default function WorkOrchestration() {
                                             </option>
                                         ))}
                                     </select>
+                                    <button
+                                        onClick={createPlanStub}
+                                        style={{
+                                            marginTop: '8px',
+                                            background: 'none',
+                                            border: '1px dashed #1967d2',
+                                            color: '#1967d2',
+                                            borderRadius: '6px',
+                                            padding: '5px 10px',
+                                            fontSize: '0.8em',
+                                            cursor: 'pointer',
+                                            width: '100%'
+                                        }}
+                                    >
+                                        + Code New Plan
+                                    </button>
                                 </div>
                                 {/* File Inputs logic implies we assume 'corpus' for now based on legacy code, 
                                 but truly dynamic inputs would map `files` here. Keeping it simpl-ish for current state */}

@@ -113,6 +113,60 @@ def list_plans():
     return {"plans": available_plans}
 
 
+@app.post("/plans/create")
+def create_plan(name: str):
+    """Create a new plan stub and return its path."""
+    import os
+    import re
+    
+    # Sanitize name to snake_case
+    clean_name = re.sub(r'[^a-zA-Z0-9]', '_', name).lower()
+    while '__' in clean_name:
+        clean_name = clean_name.replace('__', '_')
+    clean_name = clean_name.strip('_')
+    
+    if not clean_name:
+        return {"status": "error", "message": "Invalid plan name"}
+
+    filename = f"{clean_name}.py"
+    filepath = os.path.join("/app/plans", filename)
+    
+    if os.path.exists(filepath):
+         return {"status": "error", "message": f"Plan '{filename}' already exists"}
+
+    # Template
+    content = f'''import time
+
+def get_signature():
+    return {{
+        "name": "{clean_name.replace('_', ' ').title()}",
+        "description": "New plan created via UI.",
+        "inputs": {{"corpus": "file"}},
+        "output_dir": "analysis/{clean_name}"
+    }}
+
+def execute(corpus: str):
+    """
+    Execute the plan.
+    """
+    # Example logic
+    results = []
+    # with open(corpus, 'r') as f: ...
+    
+    return {{"status": "processed", "data": "TODO"}}
+'''
+    
+    with open(filepath, 'w') as f:
+        f.write(content)
+        
+    return {
+        "status": "success",
+        "message": f"Created plan: {filename}",
+        "path": filepath,
+        "name": clean_name
+    }
+
+
 @app.get("/files")
 def list_files():
     """List available corpus files and analysis directories."""

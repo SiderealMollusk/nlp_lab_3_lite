@@ -240,6 +240,9 @@ export default function WorkOrchestration() {
         }
     };
 
+    const [showNewPlanInput, setShowNewPlanInput] = useState(false);
+    const [newPlanNameVal, setNewPlanNameVal] = useState('');
+
     const switchProject = async () => {
         if (targetProject === projects.current_project) return;
 
@@ -264,17 +267,22 @@ export default function WorkOrchestration() {
     };
 
     const createPlanStub = async () => {
-        const name = prompt("Enter new plan name (snake_case):");
-        if (!name) return;
+        if (!newPlanNameVal) return;
 
         try {
-            const response = await fetch(`http://localhost:8000/plans/create?name=${encodeURIComponent(name)}`, { method: 'POST' });
+            const response = await fetch(`http://localhost:8000/plans/create?name=${encodeURIComponent(newPlanNameVal)}`, { method: 'POST' });
             const data = await response.json();
 
             if (data.status === 'success') {
-                // Deep Link Trigger
+                // Deep Link Trigger (via hidden iframe to prevent page unload/flash)
                 const link = `${config.ide_scheme || 'vscode'}://file${data.path.replace('/app', config.project_root)}`;
-                window.location.href = link;
+
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = link;
+                document.body.appendChild(iframe);
+                // Clean up iframe
+                setTimeout(() => document.body.removeChild(iframe), 2000);
 
                 setMessage(`Created plan: ${data.name}`);
                 // Refresh plans
@@ -282,6 +290,8 @@ export default function WorkOrchestration() {
                 const plansData = await plansRes.json();
                 setPlans(plansData.plans);
                 setSelectedPlan(data.name);
+                setShowNewPlanInput(false);
+                setNewPlanNameVal('');
             } else {
                 alert(data.message);
             }
@@ -572,8 +582,10 @@ export default function WorkOrchestration() {
                             {/* Inputs */}
                             <div>
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Select Plan Strategy</label>
+                                    <label htmlFor="plan-select" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Select Plan Strategy</label>
                                     <select
+                                        id="plan-select"
+                                        name="plan-select"
                                         value={selectedPlan}
                                         onChange={(e) => setSelectedPlan(e.target.value)}
                                         style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
@@ -585,28 +597,50 @@ export default function WorkOrchestration() {
                                             </option>
                                         ))}
                                     </select>
-                                    <button
-                                        onClick={createPlanStub}
-                                        style={{
-                                            marginTop: '8px',
-                                            background: 'none',
-                                            border: '1px dashed #1967d2',
-                                            color: '#1967d2',
-                                            borderRadius: '6px',
-                                            padding: '5px 10px',
-                                            fontSize: '0.8em',
-                                            cursor: 'pointer',
-                                            width: '100%'
-                                        }}
-                                    >
-                                        + Code New Plan
-                                    </button>
+
+                                    {!showNewPlanInput ? (
+                                        <button
+                                            onClick={() => setShowNewPlanInput(true)}
+                                            style={{
+                                                marginTop: '8px',
+                                                background: 'none',
+                                                border: '1px dashed #1967d2',
+                                                color: '#1967d2',
+                                                borderRadius: '6px',
+                                                padding: '5px 10px',
+                                                fontSize: '0.8em',
+                                                cursor: 'pointer',
+                                                width: '100%'
+                                            }}
+                                        >
+                                            + Code New Plan
+                                        </button>
+                                    ) : (
+                                        <div style={{ marginTop: '8px', display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                            <input
+                                                id="new-plan-name"
+                                                name="new_plan_name"
+                                                value={newPlanNameVal}
+                                                onChange={(e) => setNewPlanNameVal(e.target.value)}
+                                                placeholder="my_plan_name"
+                                                onKeyDown={(e) => e.key === 'Enter' && createPlanStub()}
+                                                autoFocus
+                                                style={{ flex: 1, padding: '5px', borderRadius: '4px', border: '1px solid #1967d2', fontSize: '0.9em' }}
+                                            />
+                                            <button onClick={createPlanStub} style={{ cursor: 'pointer', border: 'none', background: 'none' }}>✅</button>
+                                            <button onClick={() => setShowNewPlanInput(false)} style={{ cursor: 'pointer', border: 'none', background: 'none' }}>❌</button>
+                                        </div>
+                                    )}
                                 </div>
                                 {/* File Inputs logic implies we assume 'corpus' for now based on legacy code, 
                                 but truly dynamic inputs would map `files` here. Keeping it simpl-ish for current state */}
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Corpus</label>
-                                    <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                                    <label htmlFor="corpus-select" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '0.9em' }}>Corpus</label>
+                                    <select
+                                        id="corpus-select"
+                                        name="corpus-select"
+                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                                    >
                                         <option>corpus.jsonl</option>
                                         {/* Placeholder as per previous UI logic */}
                                     </select>

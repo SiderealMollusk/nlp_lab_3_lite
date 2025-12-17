@@ -7,7 +7,8 @@ export default function ProjectModal({
     setName,
     desc,
     setDesc,
-    onCreate
+    onCreate,
+    error // New Prop
 }) {
     if (!isOpen) return null;
 
@@ -40,6 +41,13 @@ export default function ProjectModal({
                         style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
                     />
                 </div>
+
+                {error && (
+                    <div style={{ marginBottom: '20px', color: '#d93025', background: '#fce8e6', padding: '10px', borderRadius: '6px', fontSize: '0.9em' }}>
+                        ⚠️ {error}
+                    </div>
+                )}
+
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                     <button onClick={onClose} style={{ padding: '10px 20px', background: 'none', border: 'none', cursor: 'pointer' }}>Cancel</button>
                     <button onClick={onCreate} style={{ padding: '10px 20px', background: '#1a73e8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Create Project</button>

@@ -39,9 +39,11 @@ export default function NavBar({
                     fontWeight: '600',
                     background: gitStatus.is_clean ? '#e6f4ea' : '#fff8e1',
                     color: gitStatus.is_clean ? '#137333' : '#b06000',
-                    border: `1px solid ${gitStatus.is_clean ? '#ceead6' : '#ffe082'}`
+                    border: `1px solid ${gitStatus?.is_clean ? '#ceead6' : '#ffe082'}`
                 }}>
-                    {gitStatus.is_clean ? (
+                    {(!gitStatus || typeof gitStatus.is_clean === 'undefined') ? (
+                        <span title="Status Unknown / Service Unreachable">❓ Unknown</span>
+                    ) : gitStatus.is_clean ? (
                         <>
                             <span>✓ Clean</span>
                             <span style={{ opacity: 0.7, fontWeight: 'normal' }}>({gitStatus.current_commit?.hash?.substring(0, 7)})</span>
@@ -49,7 +51,7 @@ export default function NavBar({
                     ) : (
                         <details style={{ position: 'relative', cursor: 'pointer' }}>
                             <summary style={{ listStyle: 'none' }}>
-                                ⚠️ Dirty ({gitStatus.uncommitted_files.length}) ▾
+                                ⚠️ Dirty ({gitStatus.uncommitted_files?.length || 0}) ▾
                             </summary>
                             <div style={{
                                 position: 'absolute',
@@ -65,7 +67,7 @@ export default function NavBar({
                             }}>
                                 <strong style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Uncommitted Changes:</strong>
                                 <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9em', color: '#555' }}>
-                                    {gitStatus.uncommitted_files.map((f, i) => (
+                                    {(gitStatus.uncommitted_files || []).map((f, i) => (
                                         <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                                             <span>{f}</span>
                                             <a

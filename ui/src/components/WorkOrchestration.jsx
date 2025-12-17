@@ -41,8 +41,9 @@ export default function WorkOrchestration() {
     const [flashComplete, setFlashComplete] = useState(false);
     const [targetProject, setTargetProject] = useState(projects.current_project);
     const [showProjectControls, setShowProjectControls] = useState(false);
+    const [modalError, setModalError] = useState('');
 
-    // Fetch available plans
+
     useEffect(() => {
         const fetchPlans = async () => {
             try {
@@ -219,8 +220,9 @@ export default function WorkOrchestration() {
     };
 
     const createProject = async () => {
+        setModalError('');
         if (!newProjectName) {
-            setMessage('Project name required');
+            setModalError('Project name required');
             return;
         }
 
@@ -238,10 +240,10 @@ export default function WorkOrchestration() {
                 setNewProjectDesc('');
                 setTargetProject(newProjectName); // Set target to new project
             } else {
-                setMessage(data.detail || 'Failed to create project');
+                setModalError(data.detail || 'Failed to create project');
             }
         } catch (error) {
-            setMessage(`Error: ${error.message}`);
+            setModalError(`Error: ${error.message}`);
         }
     };
 
@@ -392,12 +394,13 @@ export default function WorkOrchestration() {
 
                 <ProjectModal
                     isOpen={showCreateProject}
-                    onClose={() => setShowCreateProject(false)}
+                    onClose={() => { setShowCreateProject(false); setModalError(''); }}
                     name={newProjectName}
                     setName={setNewProjectName}
                     desc={newProjectDesc}
                     setDesc={setNewProjectDesc}
                     onCreate={createProject}
+                    error={modalError}
                 />
             </div>
 

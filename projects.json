@@ -1,5 +1,5 @@
 {
-  "current_project": "sample-fire",
+  "current_project": "a_fire_upon_the_deep",
   "projects": [
     {
       "name": "sample-small",
@@ -16,9 +16,9 @@
       "commits": []
     },
     {
-      "name": "sample-fire",
-      "branch": "project-fire",
-      "description": "A Fire Upon the Deep. The original test corpus.",
+      "name": "a_fire_upon_the_deep",
+      "branch": "project-a_fire_upon_the_deep",
+      "description": "Values in Action (Private/Authorized Use). Primary Project.",
       "created": "2025-12-16T17:05:00Z",
       "commits": []
     }

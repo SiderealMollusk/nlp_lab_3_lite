@@ -116,22 +116,46 @@ export default function PlanningCard({
                         </select>
 
                         {!showNewPlanInput ? (
-                            <button
-                                onClick={() => setShowNewPlanInput(true)}
-                                style={{
-                                    marginTop: '8px',
-                                    background: 'none',
-                                    border: '1px dashed #1967d2',
-                                    color: '#1967d2',
-                                    borderRadius: '6px',
-                                    padding: '5px 10px',
-                                    fontSize: '0.8em',
-                                    cursor: 'pointer',
-                                    width: '100%'
-                                }}
-                            >
-                                + Code New Plan
-                            </button>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                                <button
+                                    onClick={() => setShowNewPlanInput(true)}
+                                    style={{
+                                        background: 'none',
+                                        border: '1px dashed #1967d2',
+                                        color: '#1967d2',
+                                        borderRadius: '6px',
+                                        padding: '5px 10px',
+                                        fontSize: '0.8em',
+                                        cursor: 'pointer',
+                                        flex: 2,
+                                        width: 'auto'
+                                    }}
+                                >
+                                    + Code New Plan
+                                </button>
+                                {selectedPlan && (
+                                    <button
+                                        onClick={() => openPlanFile(`/app/plans/${selectedPlan}.py`)}
+                                        style={{
+                                            background: 'none',
+                                            border: '1px solid #1967d2',
+                                            color: '#1967d2',
+                                            borderRadius: '6px',
+                                            padding: '5px 10px',
+                                            fontSize: '0.8em',
+                                            cursor: 'pointer',
+                                            flex: 1,
+                                            width: 'auto',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '5px'
+                                        }}
+                                    >
+                                        <span>📝</span> Edit
+                                    </button>
+                                )}
+                            </div>
                         ) : (
                             <div style={{ marginTop: '8px', display: 'flex', gap: '5px', alignItems: 'center' }}>
                                 <input

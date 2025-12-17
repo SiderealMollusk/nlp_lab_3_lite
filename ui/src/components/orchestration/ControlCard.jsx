@@ -21,34 +21,35 @@ export default function ControlCard({
                 padding: '15px 25px',
                 background: '#e37400',
                 color: 'white',
-                fontSize: '1.1em'
+                fontSize: '1.1em',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
             }}>
-                2. Work Control
+                <span>2. Work Control</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <span style={{ fontSize: '0.7em', color: '#e37400', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                        {status.queued_jobs} Queued
+                    </span>
+                    <span style={{ fontSize: '0.7em', color: '#e37400', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                        {status.outstanding_jobs} Out
+                    </span>
+                </div>
             </h2>
 
             <div style={{ padding: '25px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: '30px' }}>
-                        <div>
-                            <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#1a73e8' }}>{status.queued_jobs}</div>
-                            <div style={{ fontSize: '0.8em', color: '#666', textTransform: 'uppercase' }}>Queued</div>
-                        </div>
-                        <div>
-                            <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#e37400' }}>{status.outstanding_jobs}</div>
-                            <div style={{ fontSize: '0.8em', color: '#666', textTransform: 'uppercase' }}>Outstanding</div>
-                        </div>
-                        <div style={{ paddingLeft: '20px', borderLeft: '1px solid #eee', display: 'flex', alignItems: 'center' }}>
-                            <span style={{
-                                padding: '6px 12px',
-                                borderRadius: '20px',
-                                background: isPlaying ? '#e6f4ea' : '#fce8e6',
-                                color: isPlaying ? '#137333' : '#c5221f',
-                                fontWeight: 'bold',
-                                display: 'flex', alignItems: 'center', gap: '6px'
-                            }}>
-                                {isPlaying ? '▶ RUNNING' : '⏸ PAUSED'}
-                            </span>
-                        </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span style={{
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            background: isPlaying ? '#e6f4ea' : '#fce8e6',
+                            color: isPlaying ? '#137333' : '#c5221f',
+                            fontWeight: 'bold',
+                            display: 'flex', alignItems: 'center', gap: '6px'
+                        }}>
+                            {isPlaying ? '▶ RUNNING' : '⏸ PAUSED'}
+                        </span>
                     </div>
 
                     <div style={{ display: 'flex', gap: '15px' }}>

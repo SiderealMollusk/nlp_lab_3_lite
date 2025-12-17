@@ -33,18 +33,20 @@ export default function CompletionCard({
                 alignItems: 'center'
             }}>
                 <span>3. Completion</span>
-                {hasResultsInMemory && (
-                    <span style={{ fontSize: '0.7em', color: '#d93025', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
-                        ⚠️ Unsaved Results
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <span style={{ fontSize: '0.7em', color: '#188038', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                        {status.completed_jobs} Done
                     </span>
-                )}
+                    {hasResultsInMemory && (
+                        <span style={{ fontSize: '0.7em', color: '#d93025', background: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                            ⚠️ Unsaved
+                        </span>
+                    )}
+                </div>
             </h2>
 
             <div style={{ padding: '25px', textAlign: 'center' }}>
-                <div style={{ fontSize: '2.5em', fontWeight: 'bold', color: '#137333', marginBottom: '10px' }}>
-                    {status.completed_jobs}
-                </div>
-                <div style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>Completed Jobs</div>
+
 
                 {/* LAST RESULT - PROMINENT LINK */}
                 {lastResult && (

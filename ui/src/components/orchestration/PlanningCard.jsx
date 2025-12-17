@@ -27,15 +27,18 @@ export default function PlanningCard({
             const data = await response.json();
 
             if (data.status === 'success') {
-                // Deep Link Trigger (via hidden iframe to prevent page unload/flash)
-                const link = `${config.ide_scheme || 'vscode'}://file${data.path.replace('/app', config.project_root)}`;
 
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = link;
-                document.body.appendChild(iframe);
-                // Clean up iframe
-                setTimeout(() => document.body.removeChild(iframe), 2000);
+                // Delay Deep Link to allow bind-mount propagation to host
+                setTimeout(() => {
+                    const link = `${config.ide_scheme || 'vscode'}://file${data.path.replace('/app', config.project_root)}`;
+
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = link;
+                    document.body.appendChild(iframe);
+                    // Clean up iframe
+                    setTimeout(() => document.body.removeChild(iframe), 2000);
+                }, 500);
 
                 setMessage(`Created plan: ${data.name}`);
                 // Refresh plans

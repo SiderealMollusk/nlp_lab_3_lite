@@ -18,6 +18,16 @@ export default function PlanningCard({
 }) {
     const [showNewPlanInput, setShowNewPlanInput] = useState(false);
     const [newPlanNameVal, setNewPlanNameVal] = useState('');
+    const [lastCreatedPlan, setLastCreatedPlan] = useState(null);
+
+    const openPlanFile = (path) => {
+        const link = `${config.ide_scheme || 'vscode'}://file${path.replace('/app', config.project_root)}`;
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = link;
+        document.body.appendChild(iframe);
+        setTimeout(() => document.body.removeChild(iframe), 2000);
+    };
 
     const createPlanStub = async () => {
         if (!newPlanNameVal) return;
@@ -27,18 +37,11 @@ export default function PlanningCard({
             const data = await response.json();
 
             if (data.status === 'success') {
+                // Set backup link state
+                setLastCreatedPlan({ name: data.name, path: data.path });
 
-                // Delay Deep Link to allow bind-mount propagation to host
-                setTimeout(() => {
-                    const link = `${config.ide_scheme || 'vscode'}://file${data.path.replace('/app', config.project_root)}`;
-
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = link;
-                    document.body.appendChild(iframe);
-                    // Clean up iframe
-                    setTimeout(() => document.body.removeChild(iframe), 2000);
-                }, 500);
+                // Auto-open with delay
+                setTimeout(() => openPlanFile(data.path), 1000);
 
                 setMessage(`Created plan: ${data.name}`);
                 // Refresh plans
@@ -131,6 +134,18 @@ export default function PlanningCard({
                                 />
                                 <button onClick={createPlanStub} style={{ cursor: 'pointer', border: 'none', background: 'none' }}>✅</button>
                                 <button onClick={() => setShowNewPlanInput(false)} style={{ cursor: 'pointer', border: 'none', background: 'none' }}>❌</button>
+                            </div>
+                        )}
+
+                        {lastCreatedPlan && (
+                            <div style={{ marginTop: '5px', fontSize: '0.85em', textAlign: 'right' }}>
+                                <span style={{ color: '#666', marginRight: '5px' }}>File created?</span>
+                                <button
+                                    onClick={() => openPlanFile(lastCreatedPlan.path)}
+                                    style={{ background: 'none', border: 'none', color: '#188038', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                    Open {lastCreatedPlan.name}.py
+                                </button>
                             </div>
                         )}
                     </div>

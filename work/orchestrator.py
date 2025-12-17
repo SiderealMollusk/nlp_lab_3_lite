@@ -128,6 +128,8 @@ def execute(corpus: str):
 '''
         with open(filepath, 'w') as f:
             f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
 
         return {
             "path": filepath,
